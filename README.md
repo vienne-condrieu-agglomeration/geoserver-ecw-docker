@@ -1,5 +1,15 @@
 # Geoserver image with ECW and JP2ECW support running on Debian Bookworm official image
 
+
+<div align="center">
+
+[![status-badge](https://forgejo.ci.allfabox.fr/api/badges/2/status.svg)](https://forgejo.ci.allfabox.fr/repos/2)
+[![Docker Pulls](https://img.shields.io/docker/pulls/allfab/geoserver-ecw)](https://hub.docker.com/r/allfab/geoserver-ecw)
+
+
+[![Geoserver](https://geoserver.org/img/geoserver-logo.png)](https://geoserver.org/)
+</div>
+
 - Debian based Linux
 - OpenJDK12
 - Jetty 12
