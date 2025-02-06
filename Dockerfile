@@ -111,8 +111,6 @@ RUN apt-get update -y \
 RUN chown -Rf jetty:jetty ${GEOSERVER_HOME} \
     && chown -Rf jetty:jetty ${JETTY_BASE}
 
-USER jetty
-
 # INSTALL JETTY
 RUN wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz \
     && tar xzf jetty-home-$JETTY_VERSION.tar.gz -C ${JETTY_HOME} --strip-components=1 \
@@ -145,7 +143,6 @@ RUN wget https://deac-fra.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSER
 # https://docs.geoserver.geo-solutions.it/edu/en/install_run/jai_io_install.html
 # TO DO OR NOT
 
-USER root
 RUN rm -Rf /app/downloads
 
 WORKDIR ${JETTY_BASE}
