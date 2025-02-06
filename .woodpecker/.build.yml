@@ -3,19 +3,19 @@ when:
     branch: main
 
 steps:
-  - name: Build GDAL-ECW Docker Image
+  - name: Build GEOSERVER-ECW Docker Image
     image: woodpeckerci/plugin-docker-buildx:latest
     commands:
-      - docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/gdal-ecw:latest -t allfab/gdal-ecw:3.10.1 -t allfab/gdal-ecw:3.10.1-12.9-slim .
+      - docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.26.2 -t allfab/geoserver-ecw:2.26.2-12.9-slim .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     
-  - name: Push GDAL-ECW Docker Image
+  - name: Push GEOSERVER-ECW Docker Image
     image: woodpeckerci/plugin-docker-buildx:latest
     commands:
       - docker login docker.io --username=allfab -p $VAULT_DOCKERHUB_PASS
-      - docker push --all-tags allfab/gdal-ecw
-      - docker rmi --force $(docker images -q allfab/gdal-ecw)
+      - docker push --all-tags allfab/geoserver-ecw
+      - docker rmi --force $(docker images -q allfab/geoserver-ecw)
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
