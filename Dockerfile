@@ -108,7 +108,7 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends wget unzip \
     && rm -rf /var/lib/apt/lists/* \
     && chown -Rf jetty:jetty ${GEOSERVER_HOME} \
-    && chown -Rf jetty:jetty ${JETTY_HOME}
+    && chown -Rf jetty:jetty ${JETTY_BASE}
 
 USER jetty
 
@@ -144,10 +144,10 @@ RUN wget https://deac-fra.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSER
 # https://docs.geoserver.geo-solutions.it/edu/en/install_run/jai_io_install.html
 # TO DO OR NOT
 
-WORKDIR ${JETTY_BASE}
 USER root
 RUN rm -Rf /app/downloads
 
+WORKDIR ${JETTY_BASE}
 USER jetty
 EXPOSE 8080
 CMD ["java","-jar","/srv/jetty/start.jar"]

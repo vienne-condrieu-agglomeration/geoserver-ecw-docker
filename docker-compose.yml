@@ -2,16 +2,16 @@
 services:
   geoserver:
     container_name: geoserver
-    image: allfab/geoserver:2.26.2
+    image: allfab/geoserver-ecw:latest
     restart: unless-stopped
     ports:
       - 8080:8080
     volumes:
-      - ./config:/app/geoserver/config
-      - ./data:/app/geoserver/geo-data
-      - ./logs:/app/geoserver/config/logs
-      - ./gwc/config:/app/geoserver/config/gwc
-      - ./gwc/cache:/app/geoserver/gwc-cache
+      - ./geoserver/config:/app/geoserver/config
+      - ./geoserver/data:/app/geoserver/geo-data
+      - ./geoserver/logs:/app/geoserver/config/logs
+      - ./geoserver/gwc/config:/app/geoserver/config/gwc
+      - ./geoserver/gwc/cache:/app/geoserver/gwc-cache
     networks:
       - geoserver
 
