@@ -21,21 +21,12 @@
 
 > IMPORTANT NOTE: Please change the default geoserver admin password ! The default masterpw is located in this file (within the docker container): /app/geoserver/config/security/masterpw/default/masterpw
 
-# Supported tags and respective Dockerfile links
+## Supported tags and respective Dockerfile links
 - [`2.25.3-debian12.7`](http://github.com)
 
-# How to build ?
-
-## Debian 12.7
-
-### GDAL 3.9.2
+## How to build ?
 ```bash
-docker build -f gdal/build/debian/12.7/Dockerfile -t allfab/gdal:3.9.2-debian12.7 gdal/.
-```
-### Geoserver 2.25.3
-```bash
-docker build -f geoserver/build/debian/2.25.3/Dockerfile -t allfab/geoserver:2.25.3-debian12.7 geoserver/.
-docker run -it --name geoserver -d allfab/geoserver:2.25.3-debian12.7
+docker build ...
 ```
 
 # How to quickstart ?
@@ -46,14 +37,17 @@ docker run -it --name geoserver -d allfab/geoserver:2.25.3-debian12.7
 services:
   geoserver:
     container_name: geoserver
-    image: allfab/geoserver:2.25.3-debian12.7
+    image: allfab/geoserver-ecw:latest
     restart: unless-stopped
     ports:
       - 8080:8080
     volumes:
-      - ./config:/app/geoserver/config
-      - ./data:/app/geoserver/geo-data
-      - ./gwc-cache:/app/geoserver/gwc-cache
+      - ./geoserver/config:/app/geoserver/config
+      - ./geoserver/data/raster:/app/geoserver/data/raster
+      - ./geoserver/data/vector:/app/geoserver/data/vector
+      - ./geoserver/logs:/app/geoserver/logs
+      - ./geoserver/gwc/config:/app/geoserver/gwc/config
+      - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
     networks:
       - geoserver
 
@@ -61,11 +55,26 @@ networks:
   geoserver:
     name: geoserver
     driver: bridge
-    ipam:
-      config:
-        - subnet: "172.19.0.0/16"
-          gateway: "172.19.0.1"
 ```
+
+## VOLUMES
+```bash
+mkdir -pv ./geoserver/{config,data,logs,gwc} \
+&& mkdir -pv ./geoserver/data/{raster,vector} \
+&& mkdir -pv ./geoserver/gwc/{config,cache} \
+&& chown -Rf 1000:1000 ./geoserver
+```
+
+Environments variables :
+
+- `GEOSERVER_HOME`=/app/geoserver
+- `GEOSERVER_DATA_DIR`=/app/geoserver/config
+- `GEOSERVER_GEODATA_DIR`=/app/geoserver/data
+- `GEOSERVER-_LOG_DIR`=/app/geoserver/logs
+- `GEOSERVER_LOG_LOCATION`=/app/geoserver/logs/geoserver.log
+- `GEOWEBCACHE_CONFIG_DIR`=/app/geoserver/gwc/config
+- `GEOWEBCACHE_CACHE_DIR`=/app/geoserver/gwc/cache
+
 
 Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to see the geoserver application page and login with geoserver defaults credentials :
 
@@ -73,5 +82,12 @@ Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to
 
 ## Docker run
 ```bash
-docker run
+docker run -it --name geoserver \
+    -v ./geoserver/config:/app/geoserver/config \
+    -v ./geoserver/data/raster:/app/geoserver/data/raster \
+    -v ./geoserver/data/vector:/app/geoserver/data/vector \
+    -v ./geoserver/logs:/app/geoserver/logs \
+    -v ./geoserver/gwc/config:/app/geoserver/gwc/config \
+    -v ./geoserver/gwc/cache:/app/geoserver/gwc/cache \
+    -p 8080:8080 -d allfab/geoserver-ecw:latest
 ```

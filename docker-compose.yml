@@ -8,10 +8,11 @@ services:
       - 8080:8080
     volumes:
       - ./geoserver/config:/app/geoserver/config
-      - ./geoserver/data:/app/geoserver/geo-data
-      - ./geoserver/logs:/app/geoserver/config/logs
-      - ./geoserver/gwc/config:/app/geoserver/config/gwc
-      - ./geoserver/gwc/cache:/app/geoserver/gwc-cache
+      - ./geoserver/data/raster:/app/geoserver/data/raster
+      - ./geoserver/data/vector:/app/geoserver/data/vector
+      - ./geoserver/logs:/app/geoserver/logs
+      - ./geoserver/gwc/config:/app/geoserver/gwc/config
+      - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
     networks:
       - geoserver
 
