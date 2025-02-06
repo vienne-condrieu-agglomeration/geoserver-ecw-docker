@@ -81,6 +81,8 @@ ENV JAVA_OPTIONS=" \
   -DLD_LIBRARY_PATH=/usr/local/lib:/usr/local/hexagon:/usr/local/hexagon/lib/x64/release \
   ${GEOSERVER_OPTS}"
 
+USER root
+
 # CREATE jetty USER
 RUN groupadd --system jetty \
     && useradd --system -g jetty --no-create-home jetty \
@@ -100,13 +102,17 @@ VOLUME ${GEOSERVER_LOG_DIR}
 VOLUME ${GEOWEBCACHE_CONFIG_DIR}
 VOLUME ${GEOWEBCACHE_CACHE_DIR}
 
-# PREREQUISITE
-RUN apt-get update -y \
-    &&  apt-get install -y --no-install-recommends wget unzip \
-    &&  rm -rf /var/lib/apt/lists/*
-
-# INSTALL JETTY + USER
+# PREREQUISITE + PERMISSIONS
 WORKDIR ${JETTY_HOME}
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends wget unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && chown -Rf jetty:jetty ${GEOSERVER_HOME} \
+    && chown -Rf jetty:jetty ${JETTY_HOME}
+
+USER jetty
+
+# INSTALL JETTY
 RUN wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz \
     && tar xzf jetty-home-$JETTY_VERSION.tar.gz -C ${JETTY_HOME} --strip-components=1 \
     && rm -f ../jetty-home-$JETTY_VERSION.tar.gz \
@@ -139,7 +145,9 @@ RUN wget https://deac-fra.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSER
 # TO DO OR NOT
 
 WORKDIR ${JETTY_BASE}
-RUN chown -Rf jetty:jetty ${JETTY_BASE}/* \
-    && rm -Rf /app/downloads
+USER root
+RUN rm -Rf /app/downloads
+
+USER jetty
 EXPOSE 8080
 CMD ["java","-jar","/srv/jetty/start.jar"]
