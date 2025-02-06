@@ -109,7 +109,7 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN chown -Rf jetty:jetty ${GEOSERVER_HOME} \
-    && chown -Rf jetty:jetty ${JETTY_BASE}
+    && chown -Rf jetty:jetty ${JETTY_HOME}
 
 # INSTALL JETTY
 RUN wget https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz \
