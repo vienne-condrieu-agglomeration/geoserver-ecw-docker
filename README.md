@@ -70,7 +70,7 @@ Environments variables :
 - `GEOSERVER_HOME`=/app/geoserver
 - `GEOSERVER_DATA_DIR`=/app/geoserver/config
 - `GEOSERVER_GEODATA_DIR`=/app/geoserver/data
-- `GEOSERVER-_LOG_DIR`=/app/geoserver/logs
+- `GEOSERVER_LOG_DIR`=/app/geoserver/logs
 - `GEOSERVER_LOG_LOCATION`=/app/geoserver/logs/geoserver.log
 - `GEOWEBCACHE_CONFIG_DIR`=/app/geoserver/gwc/config
 - `GEOWEBCACHE_CACHE_DIR`=/app/geoserver/gwc/cache
