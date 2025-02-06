@@ -6,22 +6,47 @@ steps:
   - name: Build GDAL-ECW Docker Image
     image: woodpeckerci/plugin-docker-buildx:latest
     commands:
-      - docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/gdal-ecw:3.10.1 .
+      - docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/gdal-ecw:latest -t allfab/gdal-ecw:3.10.1 -t allfab/gdal-ecw:3.10.1-12.9-slim .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    
+  - name: Push GDAL-ECW Docker Image
+    image: woodpeckerci/plugin-docker-buildx:latest
+    commands:
+      - docker login docker.io --username=allfab -p $VAULT_DOCKERHUB_PASS
+      - docker push --all-tags allfab/gdal-ecw
+      - docker rmi --force $(docker images -q allfab/gdal-ecw)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      VAULT_DOCKERHUB_PASS:
+        from_secret: VAULT_DOCKERHUB_PASS
 
-  - name: ntfy
+  - name: NTFY Notification ON SUCCESS
+    image: codeberg.org/l-x/woodpecker-ntfy
+    settings:
+      url: https://ntfy.allfabox.fr/woodpecker-alerts
+      token:
+        from_secret: VAULT_NTFY_TOKEN
+      title: Commit by ${CI_COMMIT_AUTHOR} on ${CI_COMMIT_BRANCH}
+      priority: default
+      click: https://forgejo.allfabox.fr/allfab
+      icon: https://woodpecker-ci.org/img/logo.svg
+      tags: robot,${CI_REPO_NAME}
+      message: ${CI_COMMIT_MESSAGE}
+
+  - name: NTFY Notification ON FAILURE
     image: codeberg.org/l-x/woodpecker-ntfy
     when:
-      - event: push
+      status:
+        - failure
     settings:
-        url: https://ntfy.allfabox.fr/woodpecker-alerts
-        # token:
-            # from_secret: your-super-secret-ntfy-access-token
-        title: Commit by ${CI_COMMIT_AUTHOR} on ${CI_COMMIT_BRANCH}
-        priority: high
-        # actions: "view, Open portal, https://home.nest.com/, clear=true; http, Turn down, https://api.nest.com/, body='{\"temperature\": 65}'"
-        click: https://forgejo.allfabox.fr
-        icon: https://woodpecker-ci.org/img/logo.svg
-        tags: robot,${CI_REPO_NAME}
-        message: ${CI_COMMIT_MESSAGE}
+      url: https://ntfy.allfabox.fr/woodpecker-alerts
+      token:
+        from_secret: VAULT_NTFY_TOKEN
+      title: Commit by ${CI_COMMIT_AUTHOR} on ${CI_COMMIT_BRANCH}
+      priority: default
+      click: https://forgejo.allfabox.fr/allfab
+      icon: https://woodpecker-ci.org/img/logo.svg
+      tags: robot,${CI_REPO_NAME}
+      message: ${CI_COMMIT_MESSAGE}
