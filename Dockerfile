@@ -106,8 +106,9 @@ VOLUME ${GEOWEBCACHE_CACHE_DIR}
 WORKDIR ${JETTY_HOME}
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends wget unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && chown -Rf jetty:jetty ${GEOSERVER_HOME} \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN chown -Rf jetty:jetty ${GEOSERVER_HOME} \
     && chown -Rf jetty:jetty ${JETTY_BASE}
 
 USER jetty
