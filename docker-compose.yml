@@ -9,7 +9,9 @@ services:
     volumes:
       - ./config:/app/geoserver/config
       - ./data:/app/geoserver/geo-data
-      - ./gwc-cache:/app/geoserver/gwc-cache
+      - ./logs:/app/geoserver/config/logs
+      - ./gwc/config:/app/geoserver/config/gwc
+      - ./gwc/cache:/app/geoserver/gwc-cache
     networks:
       - geoserver
 
@@ -17,3 +19,4 @@ networks:
   geoserver:
     name: geoserver
     driver: bridge
+    

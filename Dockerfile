@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="allfab/gdal-ecw:3.10.1"
+ARG BASE_IMAGE="allfab/gdal-ecw:latest"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG DEBIAN_VERSION="12.9"
 ARG BUILD_DATE
@@ -8,11 +8,11 @@ FROM $BASE_IMAGE AS builder
 LABEL \
   maintainer="Allfab <allfab@gmail.com>" \
   architecture="amd64/x86_64" \
-  desc="A basic docker gdal image with ECW and JP2ECW support running on Debian Bookworm 12.9 official image" \
+  desc="Geoserver image with ECW and JP2ECW support running on Debian Bookworm official image" \
   debian-version=$DEBIAN_VERSION \
-  org.opencontainers.image.title="gdal-ecw" \
+  org.opencontainers.image.title="geoserver-ecw" \
   org.opencontainers.image.authors="Allfab <allfab@gmail.com>" \
-  org.opencontainers.image.description="Geoserver with ECW support" \
+  org.opencontainers.image.description="Geoserver image with ECW and JP2ECW support running on Debian Bookworm official image" \
   org.opencontainers.image.source="https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker" \
   org.opencontainers.image.created=$BUILD_DATE
 
@@ -97,7 +97,8 @@ RUN mkdir -p \
 VOLUME ${GEOSERVER_DATA_DIR}
 VOLUME ${GEOSERVER_GEODATA_DIR}
 VOLUME ${GEOSERVER_LOG_DIR}
-VOLUME ${GEOSERVER_LOG_DIR}
+VOLUME ${GEOWEBCACHE_CONFIG_DIR}
+VOLUME ${GEOWEBCACHE_CACHE_DIR}
 
 # PREREQUISITE
 RUN apt-get update -y \
