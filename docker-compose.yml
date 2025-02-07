@@ -13,6 +13,8 @@ services:
       - ./geoserver/logs:/app/geoserver/logs
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
+    environment:
+      - GEOSERVER_CSRF_WHITELIST=example.org
     networks:
       - geoserver
 

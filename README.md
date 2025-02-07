@@ -74,8 +74,15 @@ docker run -it --name geoserver \
     -v ./geoserver/logs:/app/geoserver/logs \
     -v ./geoserver/gwc/config:/app/geoserver/gwc/config \
     -v ./geoserver/gwc/cache:/app/geoserver/gwc/cache \
+    -e GEOSERVER_CSRF_WHITELIST=example.org
     -p 8080:8080 -d allfab/geoserver-ecw:latest
 ```
+
+Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to see the geoserver application page and login with geoserver defaults credentials :
+
+> `admin:geoserver`
+
+
 ### Docker compose
 ```yml
 ---
@@ -93,6 +100,8 @@ services:
       - ./geoserver/logs:/app/geoserver/logs
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
+    environment:
+      - GEOSERVER_CSRF_WHITELIST=example.org
     networks:
       - geoserver
 
@@ -110,6 +119,8 @@ The main user of this container is named `jetty` and its default directory is `/
 
 ## Environments variables
 
+### Volumes
+
 - `GEOSERVER_HOME`=/app/geoserver
 - `GEOSERVER_DATA_DIR`=/app/geoserver/config
 - `GEOSERVER_GEODATA_DIR`=/app/geoserver/data
@@ -118,20 +129,13 @@ The main user of this container is named `jetty` and its default directory is `/
 - `GEOWEBCACHE_CONFIG_DIR`=/app/geoserver/gwc/config
 - `GEOWEBCACHE_CACHE_DIR`=/app/geoserver/gwc/cache
 
-> IMPORTANT NOTE: Not yet implemented in the environment variables of the docker-compose file.<br />*Pas encore implémenté au niveau des variables d'environnments du fichier docker-compose.*
+> IMPORTANT NOTE: Not yet implemented in the environment variables of the docker-compose file.<br />*Pas encore implémenté au niveau des variables d'environnements du fichier docker-compose.*
 
-## Docker run
-```bash
-docker run -it --name geoserver \
-    -v ./geoserver/config:/app/geoserver/config \
-    -v ./geoserver/data/raster:/app/geoserver/data/raster \
-    -v ./geoserver/data/vector:/app/geoserver/data/vector \
-    -v ./geoserver/logs:/app/geoserver/logs \
-    -v ./geoserver/gwc/config:/app/geoserver/gwc/config \
-    -v ./geoserver/gwc/cache:/app/geoserver/gwc/cache \
-    -p 8080:8080 -d allfab/geoserver-ecw:latest
-```
+### CSRF Protection
 
-Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to see the geoserver application page and login with geoserver defaults credentials :
+The GeoServer web admin employs a CSRF (Cross-Site Request Forgery) protection filter that will block any form submissions that didn’t appear to originate from GeoServer. This can sometimes cause problems for certain proxy configurations.
 
-> `admin:geoserver`
+To allow-list your proxy with the CSRF filter, you can use the GEOSERVER_CSRF_WHITELIST property. This property is a comma-separated list of domains, of the form <domainname>.<TLD>, and can contain a subdomains. Alternatively, you can disable the CSRF filter by setting the GEOSERVER_CSRF_DISABLED property to true.
+
+- `GEOSERVER_CSRF_WHITELIST`=`example.org`
+- `GEOSERVER_CSRF_DISABLED`=`false`
