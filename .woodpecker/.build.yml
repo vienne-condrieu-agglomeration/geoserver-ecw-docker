@@ -28,12 +28,16 @@ steps:
       url: https://ntfy.allfabox.fr/woodpecker-alerts
       token:
         from_secret: VAULT_NTFY_TOKEN
-      title: Commit by ${CI_COMMIT_AUTHOR} on ${CI_COMMIT_BRANCH}
+      title: ✅ WOODPECKER CI | PIPELINE ${CI_PIPELINE_NUMBER} | ${CI_REPO}
       priority: default
       click: https://forgejo.allfabox.fr/allfab
       icon: https://woodpecker-ci.org/img/logo.svg
       tags: robot,${CI_REPO_NAME}
-      message: ${CI_COMMIT_MESSAGE}
+      message: |
+        ${CI_COMMIT_MESSAGE}
+        ${CI_PIPELINE_NUMBER}
+        ${CI_REPO_NAME} - ${CI_REPO_DEFAULT_BRANCH}
+        Commit par ${CI_COMMIT_AUTHOR} sur ${CI_COMMIT_BRANCH}
 
   - name: NTFY Notification ON FAILURE
     image: codeberg.org/l-x/woodpecker-ntfy
@@ -44,9 +48,13 @@ steps:
       url: https://ntfy.allfabox.fr/woodpecker-alerts
       token:
         from_secret: VAULT_NTFY_TOKEN
-      title: Commit by ${CI_COMMIT_AUTHOR} on ${CI_COMMIT_BRANCH}
-      priority: default
-      click: https://forgejo.allfabox.fr/allfab
+      title: ❌ WOODPECKER CI | PIPELINE ${CI_PIPELINE_NUMBER} | ${CI_REPO}
+      priority: default      
       icon: https://woodpecker-ci.org/img/logo.svg
       tags: robot,${CI_REPO_NAME}
-      message: ${CI_COMMIT_MESSAGE}
+      click: https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker
+      message: |
+        ${CI_COMMIT_MESSAGE}
+        ${CI_PIPELINE_NUMBER}
+        ${CI_REPO_NAME} - ${CI_REPO_DEFAULT_BRANCH}
+        Commit par ${CI_COMMIT_AUTHOR} sur ${CI_COMMIT_BRANCH}
