@@ -72,10 +72,12 @@ ARG USERNAME=jetty
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 RUN userdel -r gdal \
-    && rm -Rf /app/data \
+    && rm -Rf /app/gdal \
     && groupadd --system --gid $USER_GID $USERNAME \
     && useradd --system --uid $USER_UID --gid $USER_GID --no-create-home $USERNAME \
-    && usermod -c $USERNAME -d $JETTY_BASE --gid $USERNAME $USERNAME
+    && usermod -c $USERNAME --home $JETTY_BASE $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # CREATE & SHARE VOLUMES
 RUN mkdir -p \
