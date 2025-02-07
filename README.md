@@ -12,7 +12,7 @@
 - Debian based Linux
 - OpenJDK12
 - Jetty 12
-- GDAL 3.9.2
+- GDAL 3.10.1
 - Geoserver :
    - Native Java advanced imaging (JAI) is installed
    - JAI-EXT⁠ is enabled by default
@@ -21,14 +21,14 @@
 > IMPORTANT NOTE: Please change the default geoserver admin password ! The default masterpw is located in this file (within the docker container): /app/geoserver/config/security/masterpw/default/masterpw
 
 ## Supported tags and respective `Dockerfile` links
- - [`3.10.1` - `3.10.1-12.9-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/gdal-ecw-3.10.1-12.9-slimdocker/src/branch/main/Dockerfile)
+ - [`2.26.2` - `2.26.2-12.9-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
 
  ---
 
 | Tag                  | Description
 | -------------------- | ----------------------------------------------------------------------------------- |
-| `latest`             | [Latest release version](https://forgejo.allfabox.fr/allfab/gdal-ecw-docker)                                                            |
-| `3.10.1`, `3.10.1-12.9-slim` | [GDAL/OGR 3.10.1 Release Notes](https://github.com/OSGeo/gdal/blob/v3.10.1/NEWS.md) |
+| `latest`             | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)                                                            |
+| `2.26.2`, `2.26.2-12.9-slim` | [Geoserver 2.26.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.26.2) |
 
 ## What is Geoserver ?
 
