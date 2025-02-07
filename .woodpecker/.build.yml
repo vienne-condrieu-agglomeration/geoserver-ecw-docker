@@ -47,7 +47,7 @@ steps:
       url: https://ntfy.allfabox.fr/woodpecker-alerts
       token:
         from_secret: VAULT_NTFY_TOKEN
-      title: "❌ WOODPECKER CI | ${CI_REPO_NAME} |nPIPELINE #${CI_PIPELINE_NUMBER}"
+      title: "❌ WOODPECKER CI | ${CI_REPO_NAME} | PIPELINE #${CI_PIPELINE_NUMBER}"
       priority: high
       click: ${CI_PIPELINE_URL}
       icon: https://woodpecker-ci.org/img/logo.svg
