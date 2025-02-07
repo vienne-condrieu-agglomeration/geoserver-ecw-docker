@@ -54,5 +54,5 @@ steps:
       tags: robot,${CI_REPO_NAME}
       message: |
         Déploiement échoué sur le dépôt ${CI_REPO_NAME}
-        Commit : ${CI_COMMIT_MESSAGE}
+        Référence du commit : ${CI_COMMIT_MESSAGE}
         Réalisé par ${CI_COMMIT_AUTHOR} sur la branche ${CI_COMMIT_BRANCH}
