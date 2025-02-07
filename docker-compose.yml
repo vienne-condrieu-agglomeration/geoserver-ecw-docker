@@ -14,7 +14,7 @@ services:
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
     environment:
-      - GEOSERVER_CSRF_WHITELIST=example.org
+      - GEOSERVER_CSRF_WHITELIST=example.org,*.example.org
     networks:
       - geoserver
 
