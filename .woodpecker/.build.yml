@@ -28,15 +28,15 @@ steps:
       url: https://ntfy.allfabox.fr/woodpecker-alerts
       token:
         from_secret: VAULT_NTFY_TOKEN
-      title: ✅ WOODPECKER CI | PIPELINE \#${CI_PIPELINE_NUMBER}
+      title: "✅ WOODPECKER CI | PIPELINE #${CI_PIPELINE_NUMBER}"
       priority: default
       click: ${CI_PIPELINE_URL}
       icon: https://woodpecker-ci.org/img/logo.svg
       tags: robot,${CI_REPO_NAME}
       message: |
         Déploiement réussi sur le dépôt ${CI_REPO_NAME}
-        Commit : ${CI_COMMIT_MESSAGE}
-        Réalisé par ${CI_COMMIT_AUTHOR} sur la branche `${CI_COMMIT_BRANCH}`
+        Référence du commit : ${CI_COMMIT_MESSAGE}
+        Réalisé par ${CI_COMMIT_AUTHOR} sur la branche ${CI_COMMIT_BRANCH}
 
   - name: NTFY Notification ON FAILURE
     image: codeberg.org/l-x/woodpecker-ntfy
@@ -47,12 +47,12 @@ steps:
       url: https://ntfy.allfabox.fr/woodpecker-alerts
       token:
         from_secret: VAULT_NTFY_TOKEN
-      title: ❌ WOODPECKER CI | PIPELINE \#${CI_PIPELINE_NUMBER} | ${CI_REPO}
-      priority: default
+      title: "❌ WOODPECKER CI | PIPELINE #${CI_PIPELINE_NUMBER} | ${CI_REPO}"
+      priority: high
       click: ${CI_PIPELINE_URL}
       icon: https://woodpecker-ci.org/img/logo.svg
       tags: robot,${CI_REPO_NAME}
       message: |
         Déploiement échoué sur le dépôt ${CI_REPO_NAME}
         Commit : ${CI_COMMIT_MESSAGE}
-        Réalisé par ${CI_COMMIT_AUTHOR} sur la branche `${CI_COMMIT_BRANCH}`
+        Réalisé par ${CI_COMMIT_AUTHOR} sur la branche ${CI_COMMIT_BRANCH}
