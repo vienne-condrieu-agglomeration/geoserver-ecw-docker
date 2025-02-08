@@ -34,12 +34,17 @@ ENV GEOSERVER_LOG_DIR="$GEOSERVER_HOME/logs"
 ENV GEOSERVER_LOG_LOCATION="$GEOSERVER_LOG_DIR/geoserver.log"
 ENV GEOWEBCACHE_CONFIG_DIR="$GEOSERVER_HOME/gwc/config"
 ENV GEOWEBCACHE_CACHE_DIR="$GEOSERVER_HOME/gwc/cache"
+ENV GEOSERVER_JAVA_KEYSTORE="$JETTY_BASE/etc"
 ENV INITIAL_MEMORY="2G"
 ENV MAXIMUM_MEMORY="4G"
 ENV JAIEXT_ENABLED="true"
 ENV GEOSERVER_CSRF_WHITELIST=""
 ENV GEOSERVER_CSRF_DISABLED=false
 
+ENV HTTPS_ENABLED=true
+ENV HTTPS_KEYSTORE_FILE=/app/geoserver/keystore.jks
+ENV HTTPS_KEYSTORE_PASSWORD="changeit"
+ENV HTTPS_KEY_ALIAS=""
 
 # SET GEOSERVER CONFIGURATION
 ENV GEOSERVER_OPTS=" \
@@ -103,6 +108,7 @@ VOLUME $GEOSERVER_GEODATA_DIR_VECTOR
 VOLUME $GEOSERVER_LOG_DIR
 VOLUME $GEOWEBCACHE_CONFIG_DIR
 VOLUME $GEOWEBCACHE_CACHE_DIR
+VOLUME $GEOSERVER_JAVA_KEYSTORE
 
 # PREREQUISITE + PERMISSIONS
 WORKDIR $JETTY_HOME
@@ -117,7 +123,7 @@ RUN wget --progress=dot:mega https://repo1.maven.org/maven2/org/eclipse/jetty/je
     && mkdir -p $JETTY_BASE $JETTY_BASE/webapps $JETTY_BASE/tmp \
     && cd $JETTY_BASE \
     && chown -R jetty:jetty $JETTY_HOME \
-    && java -jar $JETTY_HOME/start.jar --add-module=server,http,ee8-deploy,ee8-jsp
+    && java -jar $JETTY_HOME/start.jar --add-module=server,http,https,ssl,ee8-deploy,ee8-jsp
 
 # INSTALL GEOSERVER
 WORKDIR $JETTY_BASE/webapps
@@ -144,6 +150,9 @@ RUN wget --progress=dot:mega https://deac-fra.dl.sourceforge.net/project/geoserv
 # TO DO OR NOT
 
 WORKDIR $JETTY_BASE
+COPY start.d $JETTY_BASE/start.d
+
 USER jetty
 EXPOSE 8080
+EXPOSE 8443
 CMD ["java","-jar","/srv/jetty/start.jar"]

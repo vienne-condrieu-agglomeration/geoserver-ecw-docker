@@ -14,7 +14,7 @@ docker run -it --name geoserver \
     -v ./geoserver/logs:/app/geoserver/logs \
     -v ./geoserver/gwc/config:/app/geoserver/gwc/config \
     -v ./geoserver/gwc/cache:/app/geoserver/gwc/cache \
-    -p 8080:8080 -d allfab/geoserver-ecw:latest
+    -p 8080:8080 -p 854:8543 -d allfab/geoserver-ecw:latest
 ```
 
 # Delete All allfab/geoserver-ecw images

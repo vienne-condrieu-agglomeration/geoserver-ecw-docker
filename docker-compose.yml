@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     ports:
       - 8080:8080
+      - 8443:8443
     volumes:
       - ./geoserver/config:/app/geoserver/config
       - ./geoserver/data/raster:/app/geoserver/data/raster
@@ -13,6 +14,7 @@ services:
       - ./geoserver/logs:/app/geoserver/logs
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
+      - ./geoserver/jks:/srv/jetty/geoserver-base/etc
     environment:
       - GEOSERVER_CSRF_WHITELIST=example.org,*.example.org
     networks:
@@ -22,4 +24,3 @@ networks:
   geoserver:
     name: geoserver
     driver: bridge
-    

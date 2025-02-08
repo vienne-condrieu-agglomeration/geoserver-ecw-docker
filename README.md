@@ -47,6 +47,7 @@ In order to manage the correct permissions on the directories mounted as a volum
 mkdir -pv ./geoserver/{config,data,logs,gwc} \
 && mkdir -pv ./geoserver/data/{raster,vector} \
 && mkdir -pv ./geoserver/gwc/{config,cache} \
+&& mkdir -pv ./geoserver/jks \
 && chown -Rf 1000:1000 ./geoserver
 ```
 
@@ -60,9 +61,11 @@ geoserver
 ├── gwc
 │   ├── cache
 │   └── config
+├── jks
+│   └── keystore
 └── logs
 
-9 directories, 0 files
+10 directories, 1 files
 ```
 
 ### Docker run
