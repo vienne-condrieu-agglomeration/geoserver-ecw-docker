@@ -1,24 +1,24 @@
 ARG BASE_IMAGE="allfab/gdal-ecw:latest"
-ARG DEBIAN_FRONTEND="noninteractive"
-ARG DEBIAN_VERSION="12.9"
-ARG BUILD_DATE
 
 FROM $BASE_IMAGE AS builder
+
+ARG DEBIAN_FRONTEND="noninteractive"
+ARG BUILD_DATE
+ARG GS_VERSION=2.26.2
 
 LABEL \
   maintainer="Allfab <allfab@gmail.com>" \
   architecture="amd64/x86_64" \
   desc="Geoserver image with ECW and JP2ECW support running on Debian Bookworm official image" \
-  debian-version=$DEBIAN_VERSION \
   org.opencontainers.image.title="geoserver-ecw" \
   org.opencontainers.image.authors="Allfab <allfab@gmail.com>" \
   org.opencontainers.image.description="Geoserver image with ECW and JP2ECW support running on Debian Bookworm official image" \
   org.opencontainers.image.source="https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker" \
   org.opencontainers.image.created=$BUILD_DATE
 
-ENV JETTY_VERSION="12.0.16"
-ENV GEOSERVER_VERSION="2.26.2"
-ENV GDAL_VERSION="3.10.1"
+ENV JETTY_VERSION=12.0.16
+ENV GEOSERVER_VERSION=$GS_VERSION
+ENV GDAL_VERSION=3.10.1
 
 # SET JETTY CONFIGURATION
 ENV JETTY_HOME=/srv/jetty
@@ -41,7 +41,7 @@ ENV JAIEXT_ENABLED="true"
 ENV GEOSERVER_CSRF_WHITELIST=""
 ENV GEOSERVER_CSRF_DISABLED=false
 
-ENV HTTPS_ENABLED=true
+ENV HTTPS_ENABLED=false
 ENV HTTPS_PORT=8443
 ENV HTTPS_KEYSTORE_FILE=etc/keystore
 ENV HTTPS_KEYSTORE_PASSWORD="changeit"
@@ -114,17 +114,17 @@ VOLUME $GEOSERVER_JAVA_KEYSTORE
 # PREREQUISITE + PERMISSIONS
 WORKDIR $JETTY_HOME
 RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends wget unzip \
+    && apt-get install -y --no-install-recommends wget unzip gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
 # INSTALL JETTY
-RUN wget --progress=dot:mega https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz \
+RUN wget --progress=dot:giga https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz \
     && tar xzf jetty-home-$JETTY_VERSION.tar.gz -C $JETTY_HOME --strip-components=1 \
     && rm -f ../jetty-home-$JETTY_VERSION.tar.gz \
     && mkdir -p $JETTY_BASE $JETTY_BASE/webapps $JETTY_BASE/tmp \
     && cd $JETTY_BASE \
-    && chown -R jetty:jetty $JETTY_HOME \
-    && java -jar $JETTY_HOME/start.jar --add-module=server,http,https,ssl,ee8-deploy,ee8-jsp
+    && chown -R jetty:jetty $JETTY_HOME
+    # && java -jar $JETTY_HOME/start.jar --add-module=server,http,https,ssl,ee8-deploy,ee8-jsp
 
 # INSTALL GEOSERVER
 WORKDIR $JETTY_BASE/webapps
@@ -151,9 +151,14 @@ RUN wget --progress=dot:mega https://deac-fra.dl.sourceforge.net/project/geoserv
 # TO DO OR NOT
 
 WORKDIR $JETTY_BASE
-COPY start.d $JETTY_BASE/start.d
+COPY jetty/start.d /tmp/jetty/start.d
+COPY *.sh /app/
+
+RUN chmod +x /app/*.sh && sed -i 's/\r$//' /app/startup.sh
 
 USER jetty
+ENTRYPOINT ["bash", "/app/startup.sh"]
+
 EXPOSE 8080
 EXPOSE 8443
-CMD ["java","-jar","/srv/jetty/start.jar"]
+# CMD ["java","-jar","/srv/jetty/start.jar"]

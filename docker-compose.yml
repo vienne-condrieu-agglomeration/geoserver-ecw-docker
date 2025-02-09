@@ -14,9 +14,12 @@ services:
       - ./geoserver/logs:/app/geoserver/logs
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
-      - ./geoserver/jks:/srv/jetty/geoserver-base/etc
+      - ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore
     environment:
       - GEOSERVER_CSRF_WHITELIST=example.org,*.example.org
+      - HTTPS_ENABLED=true
+      - HTTPS_KEYSTORE_FILE=etc/keystore
+      - HTTPS_KEYSTORE_PASSWORD=password
     networks:
       - geoserver
 

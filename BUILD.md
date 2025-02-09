@@ -6,6 +6,8 @@ docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'
 ```
 
 # Docker run
+
+## Docker Compose File
 ```bash
 docker run -it --name geoserver \
     -v ./geoserver/config:/app/geoserver/config \
@@ -14,8 +16,28 @@ docker run -it --name geoserver \
     -v ./geoserver/logs:/app/geoserver/logs \
     -v ./geoserver/gwc/config:/app/geoserver/gwc/config \
     -v ./geoserver/gwc/cache:/app/geoserver/gwc/cache \
-    -p 8080:8080 -p 854:8543 -d allfab/geoserver-ecw:latest
+    -p 8080:8080 -p 8543:8543 -d allfab/geoserver-ecw:latest
 ```
+
+## Docker Run
+
+### Without HTTPS
+```bash
+docker run -it --name geoserver \
+    -e HTTPS_ENABLED=false \
+    -p 8080:8080 -d allfab/geoserver-ecw:latest
+```
+
+### With HTTPS
+```bash
+docker run -it --name geoserver \
+    -e HTTPS_ENABLED=true \
+    -e HTTPS_KEYSTORE_FILE=etc/keystore \
+    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore \
+    -p 8080:8080 -p 8443:8443 -d allfab/geoserver-ecw:latest
+```
+
 
 # Delete All allfab/geoserver-ecw images
 ```bash
