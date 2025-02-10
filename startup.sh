@@ -8,7 +8,7 @@ echo "Welcome to GeoServer $GEOSERVER_VERSION installation script"
 
 # CHANGE DEFAULT ADMIN USER CREDENTIALS
 if [ -n "$GEOSERVER_ADMIN_PASSWORD" ] && [ -n "$GEOSERVER_ADMIN_USER" ]; then
-    /bin/bash /app/update_credentials.sh
+    /bin/bash /app/update-credentials.sh
 fi
 
 # INSTALL GEOSERVER EXTENSIONS BEFORE STARTING JETTY SERVER

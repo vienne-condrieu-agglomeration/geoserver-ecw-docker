@@ -176,14 +176,14 @@ RUN wget --progress=dot:giga https://deac-fra.dl.sourceforge.net/project/geoserv
 # https://docs.geoserver.geo-solutions.it/edu/en/install_run/jai_io_install.html
 # TO DO OR NOT
 
-WORKDIR $JETTY_BASE
 COPY jetty/start.d /tmp/jetty/start.d
-COPY *.sh /app/
+COPY *.sh /app
 
 RUN chmod +x /app/startup.sh && sed -i 's/\r$//' /app/startup.sh \
   && chmod +x /app/update-credentials.sh && sed -i 's/\r$//' /app/update-credentials.sh \
   && chmod +x /app/install-extensions.sh && sed -i 's/\r$//' /app/install-extensions.sh
 
+WORKDIR $JETTY_BASE
 USER jetty
 ENTRYPOINT ["bash", "/app/startup.sh"]
 
