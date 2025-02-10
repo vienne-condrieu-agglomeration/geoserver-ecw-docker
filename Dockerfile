@@ -174,6 +174,8 @@ RUN wget --progress=dot:giga https://deac-fra.dl.sourceforge.net/project/geoserv
 
 # GEOSERVER Java Advanced Imaging (JAI)
 # https://docs.geoserver.geo-solutions.it/edu/en/install_run/jai_io_install.html
+# https://github.com/geosolutions-it/jai-ext
+# http://demo.geo-solutions.it/share/github/jai-ext/releases/1.1.X/1.1.28/jai-ext-1.1.28-jars.zip
 # TO DO OR NOT
 
 COPY jetty/start.d /tmp/jetty/start.d

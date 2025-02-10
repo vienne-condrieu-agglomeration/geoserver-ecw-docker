@@ -4,7 +4,7 @@
 function download_extension() {
   URL=$1
   EXTENSION=$2
-  DOWNLOAD_FILE="${ADDITIONAL_EXTENSIONS_PATH}geoserver-${GEOSERVER_VERSION}-${EXTENSION}-plugin.zip"
+  DOWNLOAD_FILE="${ADDITIONAL_EXTENSIONS_PATH}/geoserver-${GEOSERVER_VERSION}-${EXTENSION}-plugin.zip"
 
   if [ -e "$DOWNLOAD_FILE" ]; then
       echo "$DOWNLOAD_FILE already exists. Skipping download."
