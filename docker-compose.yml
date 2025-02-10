@@ -15,11 +15,16 @@ services:
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
       - ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore
+      - ./geoserver/additional_extensions:/app/geoserver/additional_extensions
     environment:
       - GEOSERVER_CSRF_WHITELIST=example.org,*.example.org
       - HTTPS_ENABLED=true
       - HTTPS_KEYSTORE_FILE=etc/keystore
       - HTTPS_KEYSTORE_PASSWORD=password
+      # - GEOSERVER_ADMIN_USER=admindemo
+      # - GEOSERVER_ADMIN_PASSWORD=demodemo
+      - INSTALL_EXTENSIONS=true
+      - STABLE_EXTENSIONS=wps,ysld,dxf      
     networks:
       - geoserver
 

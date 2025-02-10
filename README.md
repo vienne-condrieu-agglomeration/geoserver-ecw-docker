@@ -119,7 +119,6 @@ networks:
 The main user of this container is named `jetty` and its default directory is `/srv/jetty/geoserver-base`. It is part of the `sudo` group and therefore benefits from privilege escalation thanks to the configuration of the `/etc/sudoers` file.<br />
 *L'utilisateur principal de ce container se nomme `jetty` et son répertoire par défaut est `/srv/jetty/geoserver-base`. Il fait parti du groupe `sudo` et bénéficie donc d'une escalation de privilège graĉe à la configuration du fichier `/etc/sudoers`.*
 
-
 ## Environments variables
 
 ### Volumes
@@ -134,6 +133,13 @@ The main user of this container is named `jetty` and its default directory is `/
 
 > IMPORTANT NOTE: Not yet implemented in the environment variables of the docker-compose file.<br />*Pas encore implémenté au niveau des variables d'environnements du fichier docker-compose.*
 
+### Default user
+
+- `GEOSERVER_ADMIN_USER`=Admin_username 	
+- `GEOSERVER_ADMIN_PASSWORD`=Admin_password
+
+> IMPORTANT NOTE: After the initial setup, it's recommended to remove the GEOSERVER_ADMIN_USER and GEOSERVER_ADMIN_PASSWORD variable. Otherwise, newly added roles and users may be overwritten by the next time the container is restarted.<br />*Après la configuration initiale, il est recommandé de supprimer les variables GEOSERVER_ADMIN_USER et GEOSERVER_ADMIN_PASSWORD. Dans le cas contraire, les rôles et utilisateurs nouvellement ajoutés risquent d'être écrasés au prochain redémarrage du conteneur.*
+
 ### CSRF Protection
 
 The GeoServer web admin employs a CSRF (Cross-Site Request Forgery) protection filter that will block any form submissions that didn’t appear to originate from GeoServer. This can sometimes cause problems for certain proxy configurations.
@@ -142,3 +148,8 @@ To allow-list your proxy with the CSRF filter, you can use the GEOSERVER_CSRF_WH
 
 - `GEOSERVER_CSRF_WHITELIST`=`example.org`
 - `GEOSERVER_CSRF_DISABLED`=`false`
+
+### EXTENSIONS
+
+- `INSTALL_EXTENSIONS`=`true`
+- `STABLE_EXTENSIONS`=`"wps,ysld,dxf"`
