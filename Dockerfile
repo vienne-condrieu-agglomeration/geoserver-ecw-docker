@@ -83,7 +83,7 @@ ENV JAVA_OPTIONS=" \
   -Djavax.servlet.request.encoding=UTF-8 \
   -Djavax.servlet.response.encoding=UTF-8 \
   -D-XX:SoftRefLRUPolicyMSPerMB=36000 \
-  -Xbootclasspath/a:$JETTY_BASE/lib/marlin.jar \
+  -Xbootclasspath/a:$JETTY_HOME/lib/marlin.jar \
   -Dsun.java2d.renderer=sun.java2d.marlin.DMarlinRenderingEngine \
   -Dorg.geotools.coverage.jaiext.enabled=true \
   -Xms$INITIAL_MEMORY \

@@ -23,7 +23,7 @@ if [ -d "$ADDITIONAL_EXTENSIONS_PATH" ] && [ $count != 0 ]; then
 fi
 
 # Marlin-renderer rasterizer
-wget -O $JETTY_BASE/lib/marlin.jar https://github.com/bourgesl/marlin-renderer/releases/download/v0_9_4_8/marlin-0.9.4.8-Unsafe-OpenJDK11.jar
+wget -O $JETTY_HOME/lib/marlin.jar https://github.com/bourgesl/marlin-renderer/releases/download/v0_9_4_8/marlin-0.9.4.8-Unsafe-OpenJDK11.jar
 
 # HTTP/HTTPS
 if [ "${HTTPS_ENABLED}" = "true" ]; then
