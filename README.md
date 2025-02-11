@@ -126,6 +126,7 @@ Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to
 ### Docker compose
 ```yml
 ---
+# docker-compose-yml
 services:
   geoserver:
     container_name: geoserver
@@ -159,6 +160,15 @@ networks:
   geoserver:
     name: geoserver
     driver: bridge
+```
+
+```
+# .env
+COMPOSE_PROJECT_NAME=geoserver
+
+# GEOSERVER
+GEOSERVER_ADMIN_USER="myuser"
+GEOSERVER_ADMIN_PASSWORD="mypassword"
 ```
 
 ## Users
