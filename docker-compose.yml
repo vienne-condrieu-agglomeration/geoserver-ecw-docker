@@ -20,11 +20,11 @@ services:
       - GEOSERVER_CSRF_WHITELIST=example.org,*.example.org
       - HTTPS_ENABLED=true
       - HTTPS_KEYSTORE_FILE=etc/keystore
-      - HTTPS_KEYSTORE_PASSWORD=password
-      # - GEOSERVER_ADMIN_USER=admindemo
-      # - GEOSERVER_ADMIN_PASSWORD=demodemo
+      - HTTPS_KEYSTORE_PASSWORD=${HTTPS_KEYSTORE_PASSWORD}
+      - GEOSERVER_ADMIN_USER=${GEOSERVER_ADMIN_USER}
+      - GEOSERVER_ADMIN_PASSWORD=${GEOSERVER_ADMIN_PASSWORD}
       - INSTALL_EXTENSIONS=true
-      - STABLE_EXTENSIONS=wps,ysld,dxf      
+      - STABLE_EXTENSIONS=wps,ysld,dxf
     networks:
       - geoserver
 
