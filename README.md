@@ -67,7 +67,7 @@ geoserver
 │   └── keystore
 └── logs
 
-10 directories, 1 files
+11 directories, 1 files
 ```
 
 ### Docker run
