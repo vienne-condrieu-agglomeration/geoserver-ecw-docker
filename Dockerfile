@@ -6,6 +6,7 @@ FROM $BASE_IMAGE AS builder
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG BUILD_DATE
 ARG GS_VERSION=2.26.2
+ARG JAI_VERSION=1.1.28
 ARG COMMUNITY_PLUGIN_URL=''
 ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
 
@@ -22,6 +23,8 @@ LABEL \
 ENV JETTY_VERSION=12.0.16
 ENV GEOSERVER_VERSION=$GS_VERSION
 ENV GDAL_VERSION=3.10.1
+ENV JAI_RELEASE=$JAI_VERSION
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 # SET JETTY CONFIGURATION
 ENV JETTY_HOME=/srv/jetty
@@ -45,9 +48,9 @@ ENV MAXIMUM_MEMORY="4G"
 ENV JAIEXT_ENABLED="true"
 ENV GEOSERVER_CSRF_WHITELIST=""
 ENV GEOSERVER_CSRF_DISABLED=false
-ENV STABLE_EXTENSIONS=''
+ENV STABLE_EXTENSIONS=""
 ENV STABLE_PLUGIN_URL=$STABLE_PLUGIN_URL
-ENV COMMUNITY_EXTENSIONS=''
+ENV COMMUNITY_EXTENSIONS=""
 
 ENV HTTPS_ENABLED=false
 ENV HTTPS_PORT=8443
@@ -97,9 +100,7 @@ ENV JAVA_OPTIONS=" \
   -Djava.library.path=/usr/local/lib:/usr/local/hexagon:/usr/local/hexagon/lib/x64/release \  
   -DLD_LIBRARY_PATH=/usr/local/lib:/usr/local/hexagon:/usr/local/hexagon/lib/x64/release \
   $GEOSERVER_OPTS"
-
  
-
 USER root
 
 # CREATE jetty USER AND DELETE gdal USER FROM allfab/gdal-ecw IMAGE
@@ -149,7 +150,6 @@ RUN wget --progress=dot:giga https://repo1.maven.org/maven2/org/eclipse/jetty/je
     && mkdir -p $JETTY_BASE $JETTY_BASE/webapps $JETTY_BASE/tmp \
     && cd $JETTY_BASE \
     && chown -R jetty:jetty $JETTY_HOME
-    # && java -jar $JETTY_HOME/start.jar --add-module=server,http,https,ssl,ee8-deploy,ee8-jsp
 
 # INSTALL GEOSERVER
 WORKDIR $JETTY_BASE/webapps
@@ -161,7 +161,6 @@ RUN wget --progress=dot:giga https://kumisystems.dl.sourceforge.net/project/geos
 
 # GDAL NATIVE LIB + ADDITIONAL GEOSERVER EXTENSIONS
 RUN cp -f /opt/gdal-$GDAL_VERSION/java/gdal-$GDAL_VERSION.jar $JETTY_BASE/webapps/geoserver/WEB-INF/lib
-# COPY ./geoserver/additional_extensions $GEOSERVER_LIB_DIR
 
 # GDAL GEOSERVER EXT LIB
 WORKDIR /tmp/downloads
@@ -169,21 +168,7 @@ RUN wget --progress=dot:giga https://deac-fra.dl.sourceforge.net/project/geoserv
     && unzip geoserver-$GEOSERVER_VERSION-gdal-plugin.zip -d geoserver-$GEOSERVER_VERSION-gdal-plugin \
     && cd geoserver-$GEOSERVER_VERSION-gdal-plugin \
     && cp -f imageio-ext-* $JETTY_BASE/webapps/geoserver/WEB-INF/lib \
-    && cp -f gs-gdal-$GEOSERVER_VERSION.jar gt-imageio-ext-gdal-*.jar $JETTY_BASE/webapps/geoserver/WEB-INF/lib \
-    && rm -Rf /tmp/downloads
-
-# GEOSERVER Java Advanced Imaging (JAI)
-# https://docs.geoserver.geo-solutions.it/edu/en/install_run/jai_io_install.html
-# https://github.com/geosolutions-it/jai-ext
-# http://demo.geo-solutions.it/share/github/jai-ext/releases/1.1.X/1.1.28/jai-ext-1.1.28-jars.zip
-# TO DO OR NOT
-
-COPY jetty/start.d /tmp/jetty/start.d
-COPY *.sh /app
-
-RUN chmod +x /app/startup.sh && sed -i 's/\r$//' /app/startup.sh \
-  && chmod +x /app/update-credentials.sh && sed -i 's/\r$//' /app/update-credentials.sh \
-  && chmod +x /app/install-extensions.sh && sed -i 's/\r$//' /app/install-extensions.sh
+    && cp -f gs-gdal-$GEOSERVER_VERSION.jar gt-imageio-ext-gdal-*.jar $JETTY_BASE/webapps/geoserver/WEB-INF/lib
 
 WORKDIR $JETTY_BASE
 USER jetty
@@ -191,4 +176,3 @@ ENTRYPOINT ["bash", "/app/startup.sh"]
 
 EXPOSE 8080
 EXPOSE 8443
-# CMD ["java","-jar","/srv/jetty/start.jar"]
