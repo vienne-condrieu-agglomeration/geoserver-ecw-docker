@@ -73,6 +73,36 @@ geoserver
 > IMPORTANT NOTE: Remember to put the keystore associated with your SSL certificate in the `jks` folder.<br />*Pensez à mettre dans le dossier `jks` le keystore associé à votre certificat SSL.*
 
 
+```bash
+#!/bin/bash
+# keystore-generator.sh
+
+keytool -genkey \
+    -alias geoserver_localhost \
+    -keystore ./keystore \
+    -deststoretype pkcs12 \
+    -storepass mypassword \
+    -keypass mypassword \
+    -keyalg RSA \
+    -keysize 2048 \
+    -dname "CN=geoserver.mydomain.com, OU=geoserver.mydomain.com, O=Unknown, L=Unknown, ST=Unknown, C=FR"
+
+# ON RHEL BASE
+printf 'mypassword\nchangeit\n' | keytool -importkeystore \
+    -srckeystore /etc/pki/java/cacerts \
+    -destkeystore ./keystore \
+    -deststoretype pkcs12
+
+# ON DEBIAN/UBUNTU BASE
+printf 'mypassword\nchangeit\n' | keytool -importkeystore \
+    -srckeystore /etc/ssl/certs/java/cacerts \
+    -destkeystore ./keystore \
+    -deststoretype pkcs12
+
+printf 'mypassword\nyes\n' | keytool -import -alias cert_ssl -file ./my_certificate.crt -keystore ./keystore
+```
+
+
 ### Docker run
 ### Without HTTPS
 ```bash
