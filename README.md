@@ -55,6 +55,7 @@ mkdir -pv ./geoserver/{config,data,logs,gwc} \
 ```bash
 tree -L 2 geoserver
 geoserver
+├── additional_extensions
 ├── config
 ├── data
 │   ├── raster
