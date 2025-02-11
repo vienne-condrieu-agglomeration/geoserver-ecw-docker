@@ -124,6 +124,27 @@ Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to
 
 
 ### Docker compose
+```bash
+tree -La 3 ../geoserver-stack
+.
+├── docker-compose.yml
+├── .env
+└── geoserver
+    ├── additional_extensions
+    ├── config
+    ├── data
+    │   ├── raster
+    │   └── vector
+    ├── gwc
+    │   ├── cache
+    │   └── config
+    ├── jks
+    │   └── keystore
+    └── logs
+
+11 directories, 3 files
+```
+
 ```yml
 ---
 # docker-compose-yml
