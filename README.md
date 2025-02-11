@@ -70,6 +70,9 @@ geoserver
 11 directories, 1 files
 ```
 
+> IMPORTANT NOTE: Remember to put the keystore associated with your SSL certificate in the `jks` folder.<br />*Pensez à mettre dans le dossier `jks` le keystore associé à votre certificat SSL.*
+
+
 ### Docker run
 ### Without HTTPS
 ```bash
@@ -196,4 +199,4 @@ To allow-list your proxy with the CSRF filter, you can use the GEOSERVER_CSRF_WH
 ### EXTENSIONS
 
 - `INSTALL_EXTENSIONS`=`true`
-- `STABLE_EXTENSIONS`=`"wps,ysld,dxf"`
+- `STABLE_EXTENSIONS`=`wps,ysld,dxf`
