@@ -48,6 +48,7 @@ mkdir -pv ./geoserver/{config,data,logs,gwc} \
 && mkdir -pv ./geoserver/data/{raster,vector} \
 && mkdir -pv ./geoserver/gwc/{config,cache} \
 && mkdir -pv ./geoserver/jks \
+&& mkdir -pc ./geoserver/additional_extensions \
 && chown -Rf 1000:1000 ./geoserver
 ```
 
@@ -69,16 +70,48 @@ geoserver
 ```
 
 ### Docker run
+### Without HTTPS
 ```bash
 docker run -it --name geoserver \
-    -v ./geoserver/config:/app/geoserver/config \
-    -v ./geoserver/data/raster:/app/geoserver/data/raster \
-    -v ./geoserver/data/vector:/app/geoserver/data/vector \
-    -v ./geoserver/logs:/app/geoserver/logs \
-    -v ./geoserver/gwc/config:/app/geoserver/gwc/config \
-    -v ./geoserver/gwc/cache:/app/geoserver/gwc/cache \
-    -e GEOSERVER_CSRF_WHITELIST=example.org
+    -e HTTPS_ENABLED=false \
     -p 8080:8080 -d allfab/geoserver-ecw:latest
+```
+
+### With HTTPS
+```bash
+docker run -it --name geoserver \
+    -e HTTPS_ENABLED=true \
+    -e HTTPS_KEYSTORE_FILE=etc/keystore \
+    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore \
+    -p 8080:8080 -p 8443:8443 -d allfab/geoserver-ecw:latest
+```
+
+### With UPDATE DEFAULT ADMIN USER CREDENTIALS
+```bash
+docker run -it --name geoserver \
+    -e HTTPS_ENABLED=true \
+    -e HTTPS_KEYSTORE_FILE=etc/keystore \
+    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -e GEOSERVER_ADMIN_USER=admindemo \
+    -e GEOSERVER_ADMIN_PASSWORD=demodemo \
+    -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore \
+    -p 8080:8080 -p 8443:8443 -d allfab/geoserver-ecw:latest
+```
+
+### With ADDITIONAL EXTENSIONS
+```bash
+docker run -it --name geoserver \
+    -e HTTPS_ENABLED=true \
+    -e HTTPS_KEYSTORE_FILE=etc/keystore \
+    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -e GEOSERVER_ADMIN_USER=admindemo \
+    -e GEOSERVER_ADMIN_PASSWORD=demodemo \
+    -e INSTALL_EXTENSIONS=true \
+    -e STABLE_EXTENSIONS=wps,ysld,dxf
+    -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore \
+    -v ./geoserver/additional_extensions:/app/geoserver/additional_extensions \
+    -p 8080:8080 -p 8443:8443 -d allfab/geoserver-ecw:latest
 ```
 
 Check [http://localhost:8080/geoserver/⁠](http://localhost:8080/geoserver/) to see the geoserver application page and login with geoserver defaults credentials :
@@ -96,6 +129,7 @@ services:
     restart: unless-stopped
     ports:
       - 8080:8080
+      - 8443:8443
     volumes:
       - ./geoserver/config:/app/geoserver/config
       - ./geoserver/data/raster:/app/geoserver/data/raster
@@ -103,8 +137,17 @@ services:
       - ./geoserver/logs:/app/geoserver/logs
       - ./geoserver/gwc/config:/app/geoserver/gwc/config
       - ./geoserver/gwc/cache:/app/geoserver/gwc/cache
+      - ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore           # Needed if HTTPS_ENABLED=true, keystore file mounted on container
+      - ./geoserver/additional_extensions:/app/geoserver/additional_extensions    # Needed if INSTALL_EXTENSIONS=true
     environment:
-      - GEOSERVER_CSRF_WHITELIST=example.org
+      - GEOSERVER_CSRF_WHITELIST=example.org,*.example.org
+      - HTTPS_ENABLED=true                                          # REQUIRE : true | false
+      - HTTPS_KEYSTORE_FILE=etc/keystore                            # Needed if HTTPS_ENABLED=true, keystore file mounted on container
+      - HTTPS_KEYSTORE_PASSWORD=${HTTPS_KEYSTORE_PASSWORD}          # Needed if HTTPS_ENABLED=true and HTTPS_KEYSTORE_FILE=etc/keystore
+      - GEOSERVER_ADMIN_USER=${GEOSERVER_ADMIN_USER}                # Optional else admin
+      - GEOSERVER_ADMIN_PASSWORD=${GEOSERVER_ADMIN_PASSWORD}        # Optional else geoserver
+      - INSTALL_EXTENSIONS=true                                     # Optional : true | false
+      - STABLE_EXTENSIONS=wps,ysld,dxf                              # Needed if INSTALL_EXTENSIONS=true
     networks:
       - geoserver
 
@@ -131,7 +174,7 @@ The main user of this container is named `jetty` and its default directory is `/
 - `GEOWEBCACHE_CONFIG_DIR`=/app/geoserver/gwc/config
 - `GEOWEBCACHE_CACHE_DIR`=/app/geoserver/gwc/cache
 
-> IMPORTANT NOTE: Not yet implemented in the environment variables of the docker-compose file.<br />*Pas encore implémenté au niveau des variables d'environnements du fichier docker-compose.*
+> IMPORTANT NOTE: Implemented in the environment variables of the docker-compose file.<br />*Implémenté au niveau des variables d'environnements du fichier docker-compose.*
 
 ### Default user
 
