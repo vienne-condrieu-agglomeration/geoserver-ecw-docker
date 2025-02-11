@@ -170,6 +170,13 @@ RUN wget --progress=dot:giga https://deac-fra.dl.sourceforge.net/project/geoserv
     && cp -f imageio-ext-* $JETTY_BASE/webapps/geoserver/WEB-INF/lib \
     && cp -f gs-gdal-$GEOSERVER_VERSION.jar gt-imageio-ext-gdal-*.jar $JETTY_BASE/webapps/geoserver/WEB-INF/lib
 
+COPY jetty/start.d /tmp/jetty/start.d
+COPY *.sh /app
+
+RUN chmod +x /app/startup.sh && sed -i 's/\r$//' /app/startup.sh \
+  && chmod +x /app/update-credentials.sh && sed -i 's/\r$//' /app/update-credentials.sh \
+  && chmod +x /app/install-extensions.sh && sed -i 's/\r$//' /app/install-extensions.sh
+
 WORKDIR $JETTY_BASE
 USER jetty
 ENTRYPOINT ["bash", "/app/startup.sh"]
