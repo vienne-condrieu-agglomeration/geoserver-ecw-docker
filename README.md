@@ -12,7 +12,7 @@
 - Debian based Linux
 - OpenJDK12
 - Jetty 12
-- GDAL 3.10.1
+- GDAL 3.10.2
 - Geoserver :
    - Native Java advanced imaging (JAI) is installed
    - JAI-EXT⁠ is enabled by default
