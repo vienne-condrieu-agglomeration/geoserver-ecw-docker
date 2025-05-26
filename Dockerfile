@@ -5,7 +5,7 @@ FROM $BASE_IMAGE AS builder
 # BUILD ARGUMENTS
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG BUILD_DATE
-ARG GS_VERSION=2.26.2
+ARG GS_VERSION=2.27.1
 ARG JAI_VERSION=1.1.28
 ARG COMMUNITY_PLUGIN_URL=''
 ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
@@ -20,9 +20,9 @@ LABEL \
   org.opencontainers.image.source="https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker" \
   org.opencontainers.image.created=$BUILD_DATE
 
-ENV JETTY_VERSION=12.0.16
+ENV JETTY_VERSION=12.0.21
 ENV GEOSERVER_VERSION=$GS_VERSION
-ENV GDAL_VERSION=3.10.2
+ENV GDAL_VERSION=3.11.0
 ENV JAI_RELEASE=$JAI_VERSION
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
@@ -153,7 +153,7 @@ RUN wget --progress=dot:giga https://repo1.maven.org/maven2/org/eclipse/jetty/je
 
 # INSTALL GEOSERVER
 WORKDIR $JETTY_BASE/webapps
-RUN wget --progress=dot:giga https://kumisystems.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION-war.zip \
+RUN wget --progress=dot:giga https://freefr.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION-war.zip \
     && unzip geoserver-$GEOSERVER_VERSION-war.zip \
     && unzip geoserver.war -d geoserver \
     && rm -Rf README.html geoserver-$GEOSERVER_VERSION-war.zip license target geoserver.war \

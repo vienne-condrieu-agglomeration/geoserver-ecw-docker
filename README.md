@@ -11,9 +11,9 @@
 
 - Debian based Linux
 - OpenJDK12
-- Jetty 12
-- GDAL 3.10.2
-- Geoserver :
+- Jetty 12.0.21
+- GDAL 3.11.0
+- Geoserver 2.27.1 :
    - Native Java advanced imaging (JAI) is installed
    - JAI-EXT⁠ is enabled by default
    - ERDAS ECW and JP2ECW (JPG2000) renderer
@@ -21,13 +21,15 @@
 > IMPORTANT NOTE: Please change the default geoserver admin password ! The default masterpw is located in this file (within the docker container): /app/geoserver/config/security/masterpw/default/masterpw
 
 ## Supported tags and respective `Dockerfile` links
- - [`2.26.2` - `2.26.2-12.9-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
+ - [`2.27.1` - `2.27.1-12.11-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
+ - [`2.26.2` - `2.26.2-12.9-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
 
  ---
 
 | Tag                  | Description
 | -------------------- | ----------------------------------------------------------------------------------- |
 | `latest`             | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)                                                            |
+| `2.27.1`, `2.27.1-12.11-slim`, `latest` | [Geoserver 2.27.1 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.1) |
 | `2.26.2`, `2.26.2-12.9-slim` | [Geoserver 2.26.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.26.2) |
 
 ## What is Geoserver ?
@@ -35,7 +37,7 @@
 
 ## How to build ?
 ```bash
-docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.26.2 -t allfab/geoserver-ecw:2.26.2-12.9-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.27.1 -t allfab/geoserver-ecw:2.27.1-12.11-slim .
 ```
 
 ## How to quickstart ?
