@@ -9,8 +9,8 @@
 [![Geoserver](https://geoserver.org/img/geoserver-logo.png)](https://geoserver.org/)
 </div>
 
-- Debian based Linux
-- OpenJDK12
+- Debian based Linux 12.11
+- OpenJDK17
 - Jetty 12.0.21
 - GDAL 3.11.0
 - Geoserver 2.27.1 :
@@ -22,7 +22,6 @@
 
 ## Supported tags and respective `Dockerfile` links
  - [`2.27.1` - `2.27.1-12.11-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
- - [`2.26.2` - `2.26.2-12.9-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
 
  ---
 
@@ -30,7 +29,6 @@
 | -------------------- | ----------------------------------------------------------------------------------- |
 | `latest`             | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)                                                            |
 | `2.27.1`, `2.27.1-12.11-slim`, `latest` | [Geoserver 2.27.1 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.1) |
-| `2.26.2`, `2.26.2-12.9-slim` | [Geoserver 2.26.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.26.2) |
 
 ## What is Geoserver ?
 
