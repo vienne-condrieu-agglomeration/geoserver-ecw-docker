@@ -11,7 +11,7 @@
 
 - Debian based Linux `13.1`
 - OpenJDK `21`
-- Jetty `12.1.1``
+- Jetty `12.1.1`
 - GDAL `3.11.4`
 - Geoserver `2.27.2` :
   - Native Java advanced imaging (JAI) is installed
