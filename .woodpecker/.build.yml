@@ -6,7 +6,7 @@ steps:
   - name: Build GEOSERVER-ECW Docker Image
     image: woodpeckerci/plugin-docker-buildx:latest
     commands:
-      - docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.27.1 -t allfab/geoserver-ecw:2.27.1-12.11-slim .
+      - docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.27.2 -t allfab/geoserver-ecw:2.27.2-13.1-slim .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     
