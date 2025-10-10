@@ -1,4 +1,5 @@
 # GEOSERVER-ECW Build
+
 ```bash
 docker build --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest .
 
@@ -10,6 +11,7 @@ docker build --build-arg BUILD_DATE=20250210 -t allfab/geoserver-ecw:latest .
 # Docker run
 
 ## Docker Compose File
+
 ```bash
 docker run -it --name geoserver \
     -v ./geoserver/config:/app/geoserver/config \
@@ -24,6 +26,7 @@ docker run -it --name geoserver \
 ## Docker Run
 
 ### Without HTTPS
+
 ```bash
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=false \
@@ -31,6 +34,7 @@ docker run -it --name geoserver \
 ```
 
 ### With HTTPS
+
 ```bash
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=true \
@@ -41,6 +45,7 @@ docker run -it --name geoserver \
 ```
 
 ### With UPDATE DEFAULT ADMIN USER CREDENTIALS
+
 ```bash
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=true \
@@ -53,6 +58,7 @@ docker run -it --name geoserver \
 ```
 
 ### With ADDITIONAL EXTENSIONS
+
 ```bash
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=true \
@@ -67,7 +73,14 @@ docker run -it --name geoserver \
     -p 8080:8080 -p 8443:8443 -d allfab/geoserver-ecw:latest
 ```
 
-# Delete All allfab/geoserver-ecw images
+# Execute container
+
 ```bash
-docker rmi --force $(docker images -q allfab/geoserver-ecw) 
+docker exec -it geoserver /bin/bash
+```
+
+# Delete All allfab/geoserver-ecw images
+
+```bash
+docker rmi --force $(docker images -q allfab/geoserver-ecw)
 ```
