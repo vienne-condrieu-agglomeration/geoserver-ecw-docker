@@ -1,4 +1,4 @@
-# Geoserver image with ECW and JP2ECW support running on Debian Bookworm official image
+# Geoserver image with ECW and JP2ECW support running on Debian Trixie official image
 
 <div align="center">
 
