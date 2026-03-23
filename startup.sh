@@ -22,16 +22,37 @@ if [ -d "$ADDITIONAL_EXTENSIONS_PATH" ] && [ $count != 0 ]; then
     echo "Installed $count JAR extension file(s) from the additional libs folder"
 fi
 
-# Marlin-renderer rasterizer
-wget -O $JETTY_HOME/lib/marlin.jar https://github.com/bourgesl/marlin-renderer/releases/download/v0_9_4_8/marlin-0.9.4.8-Unsafe-OpenJDK11.jar
-
 # HTTP/HTTPS
 if [ "${HTTPS_ENABLED}" = "true" ]; then
-  if [ ! -f "${HTTPS_KEYSTORE_FILE}" ]; then
-    echo -e "ERROR: HTTPS was enabled but keystore file was not mounted to container [${HTTPS_KEYSTORE_FILE}]\nAdd volumes ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore"
-    exit 1
-  fi
   cd $JETTY_BASE
+
+  # If no keystore file is mounted, auto-generate a self-signed keystore for dev/test
+  if [ ! -f "${HTTPS_KEYSTORE_FILE}" ]; then
+    echo "WARNING: HTTPS is enabled but no keystore file was mounted to [${HTTPS_KEYSTORE_FILE}]"
+    echo "Auto-generating a self-signed keystore for development/testing purposes..."
+    echo "WARNING: Do NOT use this in production! Mount your own keystore via:"
+    echo "  -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore"
+
+    # Use HTTPS_KEYSTORE_PASSWORD if provided, otherwise default to "geoserver"
+    HTTPS_KEYSTORE_PASSWORD="${HTTPS_KEYSTORE_PASSWORD:-geoserver}"
+    export HTTPS_KEYSTORE_PASSWORD
+
+    mkdir -p "$(dirname "${HTTPS_KEYSTORE_FILE}")"
+    keytool -genkey \
+        -alias geoserver_self_signed \
+        -keystore "${HTTPS_KEYSTORE_FILE}" \
+        -deststoretype pkcs12 \
+        -storepass "${HTTPS_KEYSTORE_PASSWORD}" \
+        -keypass "${HTTPS_KEYSTORE_PASSWORD}" \
+        -keyalg RSA \
+        -keysize 2048 \
+        -validity 365 \
+        -dname "CN=localhost, OU=GeoServer, O=GeoServer, L=Unknown, ST=Unknown, C=US" \
+        -noprompt
+
+    echo "Self-signed keystore generated at [${HTTPS_KEYSTORE_FILE}] with password [${HTTPS_KEYSTORE_PASSWORD}]"
+  fi
+
   java -jar $JETTY_HOME/start.jar --add-module=server,http,https,ssl,ee8-deploy,ee8-jsp
   echo "Installing Jetty with HTTPS support using substituted environment variables"
   envsubst < "/tmp/jetty/start.d/ssl.ini" > "${JETTY_BASE}/start.d/ssl.ini"

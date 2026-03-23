@@ -11,7 +11,7 @@ function download_extension() {
   else
     if curl --output /dev/null --silent --head --fail "${URL}"; then
         echo -e "\nDownloading ${EXTENSION} extension from ${URL} to ${DOWNLOAD_FILE}"
-        wget --progress=bar:force:noscroll -c --no-check-certificate "${URL}" -O ${DOWNLOAD_FILE}
+        wget --progress=bar:force:noscroll -c "${URL}" -O "${DOWNLOAD_FILE}"
       else
         echo "URL does not exist: ${URL}"
     fi
@@ -38,7 +38,7 @@ fi
 # Install the extensions
 echo "Starting installation of extensions"
 for EXTENSION in $(echo "${STABLE_EXTENSIONS},${COMMUNITY_EXTENSIONS}" | tr ',' ' '); do
-  ADDITIONAL_LIB=${ADDITIONAL_EXTENSIONS_PATH}geoserver-${GEOSERVER_VERSION}-${EXTENSION}-plugin.zip
+  ADDITIONAL_LIB=${ADDITIONAL_EXTENSIONS_PATH}/geoserver-${GEOSERVER_VERSION}-${EXTENSION}-plugin.zip
   [ -e "$ADDITIONAL_LIB" ] || continue
 
   if [[ $ADDITIONAL_LIB == *.zip ]]; then

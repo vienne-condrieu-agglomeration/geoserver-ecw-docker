@@ -1,11 +1,11 @@
 ARG BASE_IMAGE="allfab/gdal-ecw:latest"
 
-FROM $BASE_IMAGE AS builder
+FROM $BASE_IMAGE AS runtime
 
 # BUILD ARGUMENTS
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG BUILD_DATE
-ARG GS_VERSION=2.27.2
+ARG GS_VERSION=2.28.2
 ARG JAI_VERSION=1.1.28
 ARG COMMUNITY_PLUGIN_URL=''
 ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
@@ -20,11 +20,11 @@ LABEL \
   org.opencontainers.image.source="https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker" \
   org.opencontainers.image.created=$BUILD_DATE
 
-ENV JETTY_VERSION=12.1.1
+ENV JETTY_VERSION=12.1.7
 ENV GEOSERVER_VERSION=$GS_VERSION
-ENV GDAL_VERSION=3.11.4
+ENV GDAL_VERSION=3.12.3
 ENV JAI_RELEASE=$JAI_VERSION
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
 # SET JETTY CONFIGURATION
 ENV JETTY_HOME=/srv/jetty
@@ -55,14 +55,12 @@ ENV COMMUNITY_EXTENSIONS=""
 ENV HTTPS_ENABLED=false
 ENV HTTPS_PORT=8443
 ENV HTTPS_KEYSTORE_FILE=etc/keystore
-ENV HTTPS_KEYSTORE_PASSWORD="changeit"
-ENV HTTPS_KEY_ALIAS=""
 
 # SET GEOSERVER CONFIGURATION
 ENV GEOSERVER_OPTS=" \
   -DGEOSERVER_DATA_DIR=$GEOSERVER_DATA_DIR \
   -DGEOSERVER_LOG_LOCATION=$GEOSERVER_LOG_LOCATION \
-  -GEOWEBCACHE_CONFIG_DIR =$GEOWEBCACHE_CONFIG_DIR \
+  -DGEOWEBCACHE_CONFIG_DIR=$GEOWEBCACHE_CONFIG_DIR \
   -DGEOWEBCACHE_CACHE_DIR=$GEOWEBCACHE_CACHE_DIR \
   -DGEOSERVER_CSRF_WHITELIST=$GEOSERVER_CSRF_WHITELIST \
   -DGEOSERVER_CSRF_DISABLED=$GEOSERVER_CSRF_DISABLED \
@@ -85,7 +83,6 @@ ENV JAVA_OPTIONS=" \
   -Dfile.encoding=UTF-8 \
   -Djavax.servlet.request.encoding=UTF-8 \
   -Djavax.servlet.response.encoding=UTF-8 \
-  -D-XX:SoftRefLRUPolicyMSPerMB=36000 \
   -Xbootclasspath/a:$JETTY_HOME/lib/marlin.jar \
   -Dsun.java2d.renderer=sun.java2d.marlin.DMarlinRenderingEngine \
   -Dorg.geotools.coverage.jaiext.enabled=true \
@@ -97,7 +94,7 @@ ENV JAVA_OPTIONS=" \
   -XX:ParallelGCThreads=20 \
   -XX:ConcGCThreads=5 \
   -Djava.io.tmpdir=/srv/jetty/geoserver-base/tmp \
-  -Djava.library.path=/usr/local/lib:/usr/local/hexagon:/usr/local/hexagon/lib/x64/release \  
+  -Djava.library.path=/usr/local/lib:/usr/local/hexagon:/usr/local/hexagon/lib/x64/release \
   -DLD_LIBRARY_PATH=/usr/local/lib:/usr/local/hexagon:/usr/local/hexagon/lib/x64/release \
   $GEOSERVER_OPTS"
  
@@ -111,9 +108,7 @@ RUN userdel -r gdal \
     && rm -Rf /app/gdal \
     && groupadd --system --gid $USER_GID $USERNAME \
     && useradd --system --uid $USER_UID --gid $USER_GID --no-create-home $USERNAME \
-    && usermod -c $USERNAME --home $JETTY_BASE $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
+    && usermod -c $USERNAME --home $JETTY_BASE $USERNAME
 
 # CREATE & SHARE VOLUMES
 RUN mkdir -p \
@@ -128,15 +123,6 @@ RUN mkdir -p \
     $ADDITIONAL_EXTENSIONS_PATH \
     && chown -Rf jetty:jetty $GEOSERVER_HOME
 
-VOLUME $GEOSERVER_DATA_DIR
-VOLUME $GEOSERVER_GEODATA_DIR_RASTER
-VOLUME $GEOSERVER_GEODATA_DIR_VECTOR
-VOLUME $GEOSERVER_LOG_DIR
-VOLUME $GEOWEBCACHE_CONFIG_DIR
-VOLUME $GEOWEBCACHE_CACHE_DIR
-VOLUME $GEOSERVER_JAVA_KEYSTORE
-VOLUME $ADDITIONAL_EXTENSIONS_PATH
-
 # PREREQUISITE + PERMISSIONS
 WORKDIR $JETTY_HOME
 RUN apt-get update -y \
@@ -146,14 +132,14 @@ RUN apt-get update -y \
 # INSTALL JETTY
 RUN wget --progress=dot:giga https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-home/$JETTY_VERSION/jetty-home-$JETTY_VERSION.tar.gz \
     && tar xzf jetty-home-$JETTY_VERSION.tar.gz -C $JETTY_HOME --strip-components=1 \
-    && rm -f ../jetty-home-$JETTY_VERSION.tar.gz \
+    && rm -f jetty-home-$JETTY_VERSION.tar.gz \
     && mkdir -p $JETTY_BASE $JETTY_BASE/webapps $JETTY_BASE/tmp \
     && cd $JETTY_BASE \
     && chown -R jetty:jetty $JETTY_HOME
 
 # INSTALL GEOSERVER
 WORKDIR $JETTY_BASE/webapps
-RUN wget --progress=dot:giga https://freefr.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION-war.zip \
+RUN wget --progress=dot:giga https://sourceforge.net/projects/geoserver/files/GeoServer/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION-war.zip/download -O geoserver-$GEOSERVER_VERSION-war.zip \
     && unzip geoserver-$GEOSERVER_VERSION-war.zip \
     && unzip geoserver.war -d geoserver \
     && rm -Rf README.html geoserver-$GEOSERVER_VERSION-war.zip license target geoserver.war \
@@ -164,11 +150,16 @@ RUN cp -f /opt/gdal-$GDAL_VERSION/java/gdal-$GDAL_VERSION.jar $JETTY_BASE/webapp
 
 # GDAL GEOSERVER EXT LIB
 WORKDIR /tmp/downloads
-RUN wget --progress=dot:giga https://deac-fra.dl.sourceforge.net/project/geoserver/GeoServer/$GEOSERVER_VERSION/extensions/geoserver-$GEOSERVER_VERSION-gdal-plugin.zip \
+RUN wget --progress=dot:giga https://sourceforge.net/projects/geoserver/files/GeoServer/$GEOSERVER_VERSION/extensions/geoserver-$GEOSERVER_VERSION-gdal-plugin.zip/download -O geoserver-$GEOSERVER_VERSION-gdal-plugin.zip \
     && unzip geoserver-$GEOSERVER_VERSION-gdal-plugin.zip -d geoserver-$GEOSERVER_VERSION-gdal-plugin \
     && cd geoserver-$GEOSERVER_VERSION-gdal-plugin \
     && cp -f imageio-ext-* $JETTY_BASE/webapps/geoserver/WEB-INF/lib \
-    && cp -f gs-gdal-$GEOSERVER_VERSION.jar gt-imageio-ext-gdal-*.jar $JETTY_BASE/webapps/geoserver/WEB-INF/lib
+    && cp -f gs-gdal-$GEOSERVER_VERSION.jar gt-imageio-ext-gdal-*.jar $JETTY_BASE/webapps/geoserver/WEB-INF/lib \
+    && rm -rf /tmp/downloads
+
+# INSTALL MARLIN RENDERER
+RUN wget --progress=dot:giga -O $JETTY_HOME/lib/marlin.jar \
+    https://github.com/bourgesl/marlin-renderer/releases/download/v0_9_4_8/marlin-0.9.4.8-Unsafe-OpenJDK11.jar
 
 COPY jetty/start.d /tmp/jetty/start.d
 COPY *.sh /app

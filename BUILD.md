@@ -39,7 +39,7 @@ docker run -it --name geoserver \
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=true \
     -e HTTPS_KEYSTORE_FILE=etc/keystore \
-    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -e HTTPS_KEYSTORE_PASSWORD=mypassword \
     -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore \
     -p 8080:8080 -p 8443:8443 -d allfab/geoserver-ecw:latest
 ```
@@ -50,7 +50,7 @@ docker run -it --name geoserver \
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=true \
     -e HTTPS_KEYSTORE_FILE=etc/keystore \
-    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -e HTTPS_KEYSTORE_PASSWORD=mypassword \
     -e GEOSERVER_ADMIN_USER=admindemo \
     -e GEOSERVER_ADMIN_PASSWORD=demodemo \
     -v ./geoserver/jks/keystore:/srv/jetty/geoserver-base/etc/keystore \
@@ -63,7 +63,7 @@ docker run -it --name geoserver \
 docker run -it --name geoserver \
     -e HTTPS_ENABLED=true \
     -e HTTPS_KEYSTORE_FILE=etc/keystore \
-    -e HTTPS_KEYSTORE_PASSWORD=password \
+    -e HTTPS_KEYSTORE_PASSWORD=mypassword \
     -e GEOSERVER_ADMIN_USER=admindemo \
     -e GEOSERVER_ADMIN_PASSWORD=demodemo \
     -e INSTALL_EXTENSIONS=true \
