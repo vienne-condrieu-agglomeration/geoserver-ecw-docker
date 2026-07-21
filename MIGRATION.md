@@ -204,7 +204,7 @@ migration/
 
 | Version | Rupture | Impact migration |
 |---|---|---|
-| 2.21 | Log4J 1.2 → Log4J 2 | logging réécrit, `.bak` créés — non bloquant |
+| 2.21 | Log4J 1.2 → Log4J 2 ; **CryptoMapper Wicket** activé | logging réécrit, `.bak` créés — non bloquant. `/geoserver/web/` répond désormais **302** vers une URL chiffrée (`?wicket-crypt=…`) puis 200 : la sonde de `migrate.sh` suit la redirection (`curl -L`) — sinon faux négatif au boot |
 | 2.24 | diskquota H2→HSQL ; **URL Checks** | non bloquant au boot ; WMS cascadés à autoriser en prod |
 | 2.25 | **StrictHttpFirewall** ; auto-escape FreeMarker | non bloquant au boot ; noms à espaces à surveiller en prod |
 | 2.26 | NetCDF 5 / GRIB ; entity resolution | sans objet ici (pas de GRIB) |
