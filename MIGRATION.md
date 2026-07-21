@@ -24,6 +24,48 @@ existe déjà, on part de 2.17.
    → modules `ee11-*`, disponibles seulement à partir de **Jetty 12.1** (d'où
    l'exigence de cette version précise).
 
+## Matrice Java consolidée (pourquoi Java 11 pour tout le tier ancien)
+
+Le choix « Java 11 pour 2.17 → 2.27 » n'est pas arbitraire : **Java 11 est le seul
+dénominateur commun** qui boote toute la plage. Vérifié sur la doc GeoServer
+officielle (juillet 2026) :
+
+| GeoServer | Java 8 | Java 11 | Java 17 | Java 21 |
+|---|:---:|:---:|:---:|:---:|
+| 2.16 → 2.21 | ✅ | ✅ | — | — |
+| 2.22 → 2.24 | ✅/— | ✅ | ✅ | — |
+| 2.25 | — | ✅ | ✅ | — |
+| 2.26 → **2.27** | — | ✅ | ✅ | ✅ |
+| 2.28+ / 3.0 | — | ❌ | ✅ (min) | ✅ |
+
+- **Java 8** ne monte pas jusqu'à 2.25+ (qui exige 11 minimum).
+- **Java 17** ne descend pas jusqu'à 2.16 (qui ne supporte que 8/11).
+- **2.27 est la dernière version compatible Java 11** ; c'est **2.28** (tier Java 21)
+  qui impose Java 17 minimum. La bascule de tier tombe donc pile entre l'étape 11
+  (2.27.5, Java 11) et l'étape 12 (2.28.4, Java 21) — cohérent avec la matrice des
+  paliers ci-dessous.
+
+> Sources : [Download GeoServer (matrice Java par version)](https://geoserver.org/download/),
+> [Upgrade to Java 17 (wiki GeoServer)](https://github.com/geoserver/geoserver/wiki/Upgrade-to-Java-17).
+
+### Contrainte de build du variant Java 11 (Debian Trixie)
+
+L'image de base `allfab/gdal-ecw` repose sur **Debian 13 (Trixie)**, qui **ne
+package plus openjdk-11** (la série OpenJDK Debian est passée à `17` en Bookworm,
+`21`/`25` en Trixie). Un `docker build --build-arg JAVA_VERSION=11` échouait donc
+sur `Package 'openjdk-11-jre-headless' has no installation candidate`.
+
+**Correctif appliqué dans `gdal-ecw-docker/Dockerfile`** : quand `JAVA_VERSION=11`,
+on installe **Eclipse Temurin 11 (Adoptium)** au lieu de l'OpenJDK Debian, dans le
+builder (`temurin-11-jdk`) **et** le runner (`temurin-11-jre`). La suite du dépôt
+Adoptium suit le nom de code de la base (`$VERSION_CODENAME`, donc `trixie` — canal
+publié par Adoptium) ; le paquet Temurin embarque son propre JDK, la suite ne sert
+qu'aux métadonnées apt. Un **symlink stable
+`/usr/lib/jvm/gdal-java`** (exposé via `JAVA_HOME`) découple `JAVA_HOME` et
+`LD_LIBRARY_PATH` du fournisseur, si bien que `21`/`25` continuent d'utiliser
+l'OpenJDK Debian sans changement. Alternatives écartées : base Bullseye (Debian 11
+en fin de vie + tous les suffixes de libs `t64` de Trixie à réécrire).
+
 ## Matrice des paliers
 
 | Étape | GeoServer | Image de base | Java | Jetty | `SERVLET_PROFILE` |
@@ -100,6 +142,11 @@ Depuis le dépôt `gdal-ecw-docker` :
 ```bash
 docker build --build-arg JAVA_VERSION=11 -t allfab/gdal-ecw:java11 .
 ```
+
+> Sur Debian Trixie, `JAVA_VERSION=11` installe **Temurin 11 (Adoptium)** et non
+> l'OpenJDK Debian (absent des dépôts) — cf. *Contrainte de build du variant
+> Java 11* plus haut. Le build nécessite donc un accès réseau à
+> `packages.adoptium.net`.
 
 ### 2. Lancer la migration complète
 
