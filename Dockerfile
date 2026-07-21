@@ -9,6 +9,11 @@ ARG GS_VERSION=2.28.2
 ARG JAI_VERSION=1.1.28
 ARG COMMUNITY_PLUGIN_URL=''
 ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
+# PER-VERSION RUNTIME PROFILE (see migrate.sh matrix)
+#  - JETTY_VERSION    : 10.0.x for the Java 11 tier (GeoServer 2.16->2.27), 12.1.x for Java 21 (2.28, 3.0)
+#  - SERVLET_PROFILE  : jetty10-javax | jetty12-ee8 (GeoServer 2.x) | jetty12-ee10 (GeoServer 3.x, Jakarta)
+ARG JETTY_VERSION=12.1.7
+ARG SERVLET_PROFILE=jetty12-ee8
 
 LABEL \
   maintainer="Allfab <allfab@gmail.com>" \
@@ -20,11 +25,13 @@ LABEL \
   org.opencontainers.image.source="https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker" \
   org.opencontainers.image.created=$BUILD_DATE
 
-ENV JETTY_VERSION=12.1.7
+ENV JETTY_VERSION=$JETTY_VERSION
+ENV SERVLET_PROFILE=$SERVLET_PROFILE
 ENV GEOSERVER_VERSION=$GS_VERSION
-ENV GDAL_VERSION=3.12.3
 ENV JAI_RELEASE=$JAI_VERSION
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+# GDAL_VERSION and JAVA_VERSION are inherited from the gdal-ecw base image (ENV),
+# so the GDAL jar copy and JAVA_HOME auto-track the base variant (Java 11 vs 21).
+ENV JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64
 
 # SET JETTY CONFIGURATION
 ENV JETTY_HOME=/srv/jetty

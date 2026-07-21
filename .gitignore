@@ -3,3 +3,5 @@ geoserver
 ee8*.ini
 http.ini
 server.ini
+# Migration data (data dirs volumineux, snapshots et logs) — voir migrate.sh
+migration/
