@@ -94,7 +94,10 @@ wait_ready() {
       err "Le conteneur ${CONTAINER} s'est arrete de facon inattendue."
       return 1
     fi
-    code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:${PORT}/geoserver/web/" 2>/dev/null || true)"
+    # -L : suit la redirection Wicket. Depuis 2.21, /geoserver/web/ repond 302
+    # vers une URL chiffree (CryptoMapper, ?wicket-crypt=...) qui renvoie 200 ;
+    # le code rapporte est celui de la page finale, uniforme pour tous les paliers.
+    code="$(curl -s -L -o /dev/null -w '%{http_code}' "http://localhost:${PORT}/geoserver/web/" 2>/dev/null || true)"
     if [ "${code}" = "200" ]; then
       return 0
     fi
