@@ -94,10 +94,13 @@ wait_ready() {
       err "Le conteneur ${CONTAINER} s'est arrete de facon inattendue."
       return 1
     fi
-    # -L : suit la redirection Wicket. Depuis 2.21, /geoserver/web/ repond 302
-    # vers une URL chiffree (CryptoMapper, ?wicket-crypt=...) qui renvoie 200 ;
-    # le code rapporte est celui de la page finale, uniforme pour tous les paliers.
-    code="$(curl -s -L -o /dev/null -w '%{http_code}' "http://localhost:${PORT}/geoserver/web/" 2>/dev/null || true)"
+    # -L + moteur de cookies (-b /dev/null, en memoire) : depuis 2.21,
+    # /geoserver/web/ repond 302 vers une URL chiffree (CryptoMapper,
+    # ?wicket-crypt=...). Depuis 2.24 le JSESSIONID est HttpOnly et REQUIS sur
+    # l'URL chiffree : sans renvoi du cookie, la redirection reboucle (302 x50).
+    # -b /dev/null active le renvoi du cookie ; le code final (200) est uniforme
+    # pour tous les paliers (2.17->2.20 en 200 direct, 2.21+ en 302->200).
+    code="$(curl -s -L -b /dev/null -o /dev/null -w '%{http_code}' "http://localhost:${PORT}/geoserver/web/" 2>/dev/null || true)"
     if [ "${code}" = "200" ]; then
       return 0
     fi
