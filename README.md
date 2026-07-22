@@ -9,10 +9,10 @@
 
 </div>
 
-- Debian based Linux `13.4`
+- Debian based Linux `13.6`
 - OpenJDK `21`
 - Jetty `12.1.7`
-- GDAL `3.12.3`
+- GDAL `3.13.1`
 - Geoserver `2.28.2` :
   - Native Java advanced imaging (JAI) is installed
   - JAI-EXT⁠ is enabled by default
