@@ -1,14 +1,8 @@
 # GeoServer with ECW & JP2ECW (JPEG2000) support
 
-
-
-<div align="center">
-
 [![Docker Pulls](https://img.shields.io/docker/pulls/allfab/geoserver-ecw)](https://hub.docker.com/r/allfab/geoserver-ecw)
 
 [![Geoserver](https://geoserver.org/img/geoserver-logo.png)](https://geoserver.org/)
-
-</div>
 
 GeoServer image with **ERDAS ECW / JP2ECW** raster support (GDAL + Hexagon native libs), running on Debian Trixie.
 
