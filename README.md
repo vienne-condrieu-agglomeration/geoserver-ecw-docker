@@ -9,6 +9,8 @@
 
 </div>
 
+Image built by default (`latest`) :
+
 - Debian based Linux `13.6`
 - OpenJDK `21`
 - Jetty `12.1.7`
@@ -20,17 +22,35 @@
 
 > IMPORTANT NOTE: Please change the default geoserver admin password ! The default masterpw is located in this file (within the docker container): /app/geoserver/config/security/masterpw/default/masterpw
 
+## Buildable GeoServer versions / _Versions GeoServer buildables_
+
+The **same `Dockerfile`** builds the whole GeoServer range from `2.17` up to `3.0.0`. It is parameterized by build-args (`BASE_IMAGE`, `GS_VERSION`, `JETTY_VERSION`, `SERVLET_PROFILE`) grouped into **3 runtime profiles** — because newer GeoServer major/minor lines require newer Java / Jetty / Servlet stacks. `JAVA_HOME` and `GDAL_VERSION` are inherited from the `allfab/gdal-ecw` base image, so they auto-track the Java 11 vs Java 21 variant.<br />
+_Le **même `Dockerfile`** construit toute la gamme GeoServer de `2.17` à `3.0.0`. Il est paramétré par build-args (`BASE_IMAGE`, `GS_VERSION`, `JETTY_VERSION`, `SERVLET_PROFILE`) regroupés en **3 profils runtime** — car les lignes GeoServer récentes exigent des piles Java / Jetty / Servlet plus récentes. `JAVA_HOME` et `GDAL_VERSION` sont hérités de l'image de base `allfab/gdal-ecw`, donc suivent automatiquement le variant Java 11 vs Java 21._
+
+| Profile | GeoServer | `BASE_IMAGE` | Java | `JETTY_VERSION` | `SERVLET_PROFILE` |
+|---|---|---|---|---|---|
+| 1 | `2.17` → `2.27` | `allfab/gdal-ecw:java11` | 11 | `10.0.x` | `jetty10-javax` |
+| 2 | `2.28` (**`latest`**) | `allfab/gdal-ecw:latest` | 21 | `12.1.x` | `jetty12-ee8` |
+| 3 | `3.0.0` | `allfab/gdal-ecw:latest` | 21 | `12.1.x` | `jetty12-ee11` |
+
+> Profile 3 : GeoServer 3.0 = Jakarta Servlet 6.1 = Jakarta EE 11 → Jetty `ee11-*` modules (hence the Jetty **12.1** requirement). Fallback to `jetty12-ee10` if the WAR turns out to be Servlet 6.0.<br />_Profil 3 : GeoServer 3.0 = Jakarta Servlet 6.1 = Jakarta EE 11 → modules Jetty `ee11-*` (d'où l'exigence de Jetty **12.1**). Repli sur `jetty12-ee10` si le WAR s'avère en Servlet 6.0._
+
+The exhaustive list of minor versions used in the migration staircase (2.16.4 source → 3.0.0) lives in `migrate.sh`.<br />
+_La liste exhaustive des versions mineures utilisées dans l'escalier de migration (source 2.16.4 → 3.0.0) se trouve dans `migrate.sh`._
+
 ## Supported tags and respective `Dockerfile` links
 
-- [`2.28.2` - `2.28.2-13.4-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
-- [`2.27.2` - `2.27.2-13.1-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
-- [`2.27.1` - `2.27.1-12.11-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)
+- [`3.0.0`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 3 — Jetty 12.1 / EE11)
+- [`2.28.2` - `2.28.2-13.4-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 2 — default build)
+- [`2.27.2` - `2.27.2-13.1-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 1 — Jetty 10 / Java 11)
+- [`2.27.1` - `2.27.1-12.11-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 1 — Jetty 10 / Java 11)
 
 ---
 
 | Tag                                    | Description                                                                                  |
 | -------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `latest`                               | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)           |
+| `3.0.0`                                | [Geoserver 3.0.0 Release Notes](https://github.com/geoserver/geoserver/releases/tag/3.0.0)   |
 | `2.28.2`, `2.28.2-13.4-slim`, `latest` | [Geoserver 2.28.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.28.2) |
 | `2.27.2`, `2.27.2-13.1-slim`           | [Geoserver 2.27.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.2) |
 | `2.27.1`, `2.27.1-12.11-slim`          | [Geoserver 2.27.1 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.1) |
@@ -39,12 +59,40 @@
 
 ## How to build ?
 
+Pick the build-args matching the [runtime profile](#buildable-geoserver-versions--versions-geoserver-buildables) of the target GeoServer version.<br />
+_Choisissez les build-args correspondant au [profil runtime](#buildable-geoserver-versions--versions-geoserver-buildables) de la version GeoServer visée._
+
+### Profile 2 — `2.28.2` (default `latest`)
+
 ```bash
 docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.28.2 -t allfab/geoserver-ecw:2.28.2-13.4-slim .
 ```
 
+### Profile 3 — `3.0.0` (Java 21 / Jetty 12.1 / Jakarta EE11)
+
 ```bash
-docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.27.2 -t allfab/geoserver-ecw:2.27.2-13.1-slim .
+docker build -f ./Dockerfile --no-cache=true \
+  --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+  --build-arg BASE_IMAGE=allfab/gdal-ecw:latest \
+  --build-arg GS_VERSION=3.0.0 \
+  --build-arg JETTY_VERSION=12.1.7 \
+  --build-arg SERVLET_PROFILE=jetty12-ee11 \
+  -t allfab/geoserver-ecw:3.0.0 .
+```
+
+### Profile 1 — `2.17` → `2.27` (Java 11 / Jetty 10)
+
+Requires the Java 11 base variant `allfab/gdal-ecw:java11` (built from the `gdal-ecw-docker` repo with `--build-arg JAVA_VERSION=11`).<br />
+_Nécessite le variant base Java 11 `allfab/gdal-ecw:java11` (construit depuis le dépôt `gdal-ecw-docker` avec `--build-arg JAVA_VERSION=11`)._
+
+```bash
+docker build -f ./Dockerfile --no-cache=true \
+  --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+  --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 \
+  --build-arg GS_VERSION=2.27.2 \
+  --build-arg JETTY_VERSION=10.0.24 \
+  --build-arg SERVLET_PROFILE=jetty10-javax \
+  -t allfab/geoserver-ecw:2.27.2 -t allfab/geoserver-ecw:2.27.2-13.1-slim .
 ```
 
 ## How to quickstart ?
