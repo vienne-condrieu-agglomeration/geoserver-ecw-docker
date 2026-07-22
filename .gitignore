@@ -1,3 +1,4 @@
+.env
 keystore
 geoserver
 ee8*.ini
