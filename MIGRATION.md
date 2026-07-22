@@ -276,6 +276,40 @@ Les PNG produits sont archivés dans `migration/out/`.
 > faute de mot de passe sous la main ; la présence des workspaces/couches a été
 > vérifiée via WMS `GetCapabilities`, qui couvre le besoin.
 
+#### Piège du Proxy Base URL en accès direct `localhost`
+
+Le data dir de prod fige un **Proxy Base URL** sur le domaine public dans
+`global.xml` :
+
+```xml
+<proxyBaseUrl>https://geo-ressources.vienne-condrieu-agglomeration.fr/geoserver</proxyBaseUrl>
+<useHeadersProxyURL>true</useHeadersProxyURL>
+```
+
+GeoServer construit **toutes** ses URL absolues (dont l'`action` du formulaire de
+login) à partir de ce champ. En accès direct `http://localhost:8080` (sans reverse
+proxy émettant les en-têtes `X-Forwarded-*`), l'`action` pointe vers le domaine de
+prod ; la **CSP `form-action 'self'`** (activée par défaut depuis 2.27) bloque
+alors la connexion :
+
+```
+Content-Security-Policy … (form-action) … j_spring_security_check … enfreint « form-action 'self' »
+```
+
+**Correctif pour la validation locale uniquement** — neutraliser le proxy pour que
+GeoServer dérive l'URL de la requête, puis redémarrer le conteneur :
+
+```xml
+<proxyBaseUrl></proxyBaseUrl>
+<useHeadersProxyURL>false</useHeadersProxyURL>
+```
+
+L'`action` devient `http://localhost:8080/geoserver/j_spring_security_check`
+(= `'self'`), la CSP passe, connexion `igeo` OK. **En prod, ce réglage n'est pas
+nécessaire** : le reverse proxy envoie les `X-Forwarded-*` et l'origine réelle
+correspond au `proxyBaseUrl`, donc la CSP est satisfaite — d'où le rappel de
+restauration ci-dessous.
+
 ### Reste à faire pour la mise en production
 
 Ces points ne concernent que le **service en prod**, pas la migration du data dir :
@@ -284,6 +318,12 @@ Ces points ne concernent que le **service en prod**, pas la migration du data di
 2. Configurer les **URL Checks** (WMS cascadés) et le **StrictHttpFirewall**
    (ressources aux noms avec espaces).
 3. Se connecter à la console avec `igeo` pour un contrôle visuel final.
+4. **Restaurer le Proxy Base URL** dans `global.xml` s'il a été neutralisé pour la
+   validation locale (cf. *Piège du Proxy Base URL* ci-dessus) :
+   ```xml
+   <proxyBaseUrl>https://geo-ressources.vienne-condrieu-agglomeration.fr/geoserver</proxyBaseUrl>
+   <useHeadersProxyURL>true</useHeadersProxyURL>
+   ```
 
 ## Points de vigilance par version
 
