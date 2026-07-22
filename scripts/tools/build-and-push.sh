@@ -17,7 +17,7 @@ set -euo pipefail
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 IMAGE_PREFIX="${IMAGE_PREFIX:-allfab/geoserver-ecw}"
 
 # La version portant aussi le tag :latest (doit correspondre a la CI).

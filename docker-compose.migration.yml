@@ -4,7 +4,7 @@
 # Joue MANUELLEMENT un seul palier de migration GeoServer contre le data dir de
 # travail (migration/work/config), sans HTTPS ni credentials.
 #
-# Pour l'orchestration complete 2.17.5 -> 3.0.0, preferer ./migrate.sh.
+# Pour l'orchestration complete 2.17.5 -> 3.0.0, preferer ./scripts/tools/migrate.sh.
 #
 # Usage :
 #   # 1. initialiser la copie de travail (une fois) :

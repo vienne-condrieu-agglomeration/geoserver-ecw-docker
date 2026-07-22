@@ -86,7 +86,7 @@ en fin de vie + tous les suffixes de libs `t64` de Trixie à réécrire).
 | 13 | 3.0.0 | `allfab/gdal-ecw:latest` | 21 | 12.1.x | `jetty12-ee11` |
 
 > Les numéros sont les derniers patchs publiés sur SourceForge à la date de
-> rédaction. La matrice est définie dans `migrate.sh` (tableau `STEPS`).
+> rédaction. La matrice est définie dans `scripts/tools/migrate.sh` (tableau `STEPS`).
 
 ## Paramétrage du dépôt (fait dans cette session)
 
@@ -99,7 +99,7 @@ en fin de vie + tous les suffixes de libs `t64` de Trixie à réécrire).
     (plus figés) → ils suivent automatiquement le variant Java 11 vs 21.
 - **`startup.sh`** — choisit les modules de déploiement Jetty selon `SERVLET_PROFILE`
   (Jetty 10 : `deploy,jsp` sans préfixe `ee*` ; Jetty 12 : `ee8-*`, `ee10-*` ou `ee11-*`).
-- **`migrate.sh`** — orchestrateur du staircase (voir plus bas).
+- **`scripts/tools/migrate.sh`** — orchestrateur du staircase (voir plus bas).
 - **`docker-compose.migration.yml`** — pour jouer **un** palier à la main.
 
 ## Spécificités de CE data dir (relevées à la validation)
@@ -167,16 +167,16 @@ docker build --build-arg JAVA_VERSION=11 -t allfab/gdal-ecw:java11 .
 
 ```bash
 # construit chaque image de palier puis la joue (2.17.5 -> 3.0.0)
-BUILD=1 ./migrate.sh
+BUILD=1 ./scripts/tools/migrate.sh
 
 # ou, si les images de palier existent deja :
-./migrate.sh
+./scripts/tools/migrate.sh
 
 # reprise a un palier precis (1-based), sur la copie de travail existante :
-START_STEP=8 ./migrate.sh
+START_STEP=8 ./scripts/tools/migrate.sh
 ```
 
-`migrate.sh` gère, pour chaque palier :
+`scripts/tools/migrate.sh` gère, pour chaque palier :
 1. un **snapshot** de l'état d'entrée dans `migration/steps/<nn>-<gs>/config` (reprise possible) ;
 2. le lancement du conteneur sur `migration/work/config` (data dir partagé, HTTPS off, port 8080) ;
 3. l'attente d'un **HTTP 200** sur `/geoserver/web/`, puis une pause de flush ;
@@ -370,7 +370,7 @@ Ces points ne concernent que le **service en prod**, pas la migration du data di
 
 | Version | Rupture | Impact migration |
 |---|---|---|
-| 2.21 | Log4J 1.2 → Log4J 2 ; **CryptoMapper Wicket** activé | logging réécrit, `.bak` créés — non bloquant. `/geoserver/web/` répond désormais **302** vers une URL chiffrée (`?wicket-crypt=…`) puis 200 : la sonde de `migrate.sh` suit la redirection (`curl -L`) — sinon faux négatif au boot |
+| 2.21 | Log4J 1.2 → Log4J 2 ; **CryptoMapper Wicket** activé | logging réécrit, `.bak` créés — non bloquant. `/geoserver/web/` répond désormais **302** vers une URL chiffrée (`?wicket-crypt=…`) puis 200 : la sonde de `scripts/tools/migrate.sh` suit la redirection (`curl -L`) — sinon faux négatif au boot |
 | 2.24 | diskquota H2→HSQL ; **URL Checks** ; **JSESSIONID `HttpOnly` requis** par le CryptoMapper | non bloquant au boot ; WMS cascadés à autoriser en prod. La sonde doit **renvoyer le cookie** (`curl -L -b /dev/null`), sinon la redirection Wicket reboucle (302 ×50) → faux négatif |
 | 2.25 | **StrictHttpFirewall** ; auto-escape FreeMarker | non bloquant au boot ; noms à espaces à surveiller en prod |
 | 2.26 | NetCDF 5 / GRIB ; entity resolution | sans objet ici (pas de GRIB) |
@@ -382,5 +382,5 @@ Ces points ne concernent que le **service en prod**, pas la migration du data di
 
 Si un palier ancien ne démarre pas sur **Java 11 + Jetty 10** (support Java 11
 encore jeune en 2.16/2.17), rabattre ce tier sur **Jetty 9.4** : ajouter un profil
-`jetty9-javax` dans `startup.sh` et ajuster `JETTY10` dans `migrate.sh`. Le
+`jetty9-javax` dans `startup.sh` et ajuster `JETTY10` dans `scripts/tools/migrate.sh`. Le
 paramétrage rend ce changement local.

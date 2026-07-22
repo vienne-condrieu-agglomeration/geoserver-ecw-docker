@@ -9,7 +9,7 @@ ARG GS_VERSION=3.0.0
 ARG JAI_VERSION=1.1.28
 ARG COMMUNITY_PLUGIN_URL=''
 ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
-# PER-VERSION RUNTIME PROFILE (see migrate.sh matrix)
+# PER-VERSION RUNTIME PROFILE (see scripts/tools/migrate.sh matrix)
 #  - JETTY_VERSION    : 10.0.x for the Java 11 tier (GeoServer 2.16->2.27), 12.1.x for Java 21 (2.28, 3.0)
 #  - SERVLET_PROFILE  : jetty10-javax | jetty12-ee8 (GeoServer 2.x) | jetty12-ee10 (GeoServer 3.x, Jakarta)
 ARG JETTY_VERSION=12.1.7
@@ -169,7 +169,8 @@ RUN wget --progress=dot:giga -O $JETTY_HOME/lib/marlin.jar \
     https://github.com/bourgesl/marlin-renderer/releases/download/v0_9_4_8/marlin-0.9.4.8-Unsafe-OpenJDK11.jar
 
 COPY jetty/start.d /tmp/jetty/start.d
-COPY *.sh /app
+# Scripts runtime uniquement (les outils scripts/tools/*.sh ne sont pas embarques dans l'image).
+COPY scripts/runtime/startup.sh scripts/runtime/update-credentials.sh scripts/runtime/install-extensions.sh /app/
 
 RUN chmod +x /app/startup.sh && sed -i 's/\r$//' /app/startup.sh \
   && chmod +x /app/update-credentials.sh && sed -i 's/\r$//' /app/update-credentials.sh \

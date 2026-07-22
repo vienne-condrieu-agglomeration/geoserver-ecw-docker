@@ -35,8 +35,8 @@ _Le **même `Dockerfile`** construit toute la gamme GeoServer de `2.17` à `3.0.
 
 > Profile 3 : GeoServer 3.0 = Jakarta Servlet 6.1 = Jakarta EE 11 → Jetty `ee11-*` modules (hence the Jetty **12.1** requirement). Fallback to `jetty12-ee10` if the WAR turns out to be Servlet 6.0.<br />_Profil 3 : GeoServer 3.0 = Jakarta Servlet 6.1 = Jakarta EE 11 → modules Jetty `ee11-*` (d'où l'exigence de Jetty **12.1**). Repli sur `jetty12-ee10` si le WAR s'avère en Servlet 6.0._
 
-The exhaustive list of minor versions used in the migration staircase (2.16.4 source → 3.0.0) lives in `migrate.sh`.<br />
-_La liste exhaustive des versions mineures utilisées dans l'escalier de migration (source 2.16.4 → 3.0.0) se trouve dans `migrate.sh`._
+The exhaustive list of minor versions used in the migration staircase (2.16.4 source → 3.0.0) lives in `scripts/tools/migrate.sh`.<br />
+_La liste exhaustive des versions mineures utilisées dans l'escalier de migration (source 2.16.4 → 3.0.0) se trouve dans `scripts/tools/migrate.sh`._
 
 ## Supported tags and respective `Dockerfile` links
 
@@ -58,7 +58,7 @@ _Toutes ces images sont construites depuis le **même [`Dockerfile`](https://for
 - `2.26.4`, `2.25.7`, `2.24.5`, `2.23.6`, `2.22.6`, `2.21.5`
 - `2.20.7`, `2.19.7`, `2.18.7`, `2.17.5`
 
-> The `2.x` patch versions above are the ones wired into the migration staircase (`migrate.sh`). Any other patch of a supported minor line builds by passing its number to `GS_VERSION`.<br />_Les versions patch `2.x` ci-dessus sont celles câblées dans l'escalier de migration (`migrate.sh`). N'importe quel autre patch d'une ligne mineure supportée se build en passant son numéro à `GS_VERSION`._
+> The `2.x` patch versions above are the ones wired into the migration staircase (`scripts/tools/migrate.sh`). Any other patch of a supported minor line builds by passing its number to `GS_VERSION`.<br />_Les versions patch `2.x` ci-dessus sont celles câblées dans l'escalier de migration (`scripts/tools/migrate.sh`). N'importe quel autre patch d'une ligne mineure supportée se build en passant son numéro à `GS_VERSION`._
 
 ---
 

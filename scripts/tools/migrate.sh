@@ -13,7 +13,7 @@ set -euo pipefail
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MIGRATION_DIR="${REPO_DIR}/migration"
 SRC_DIR="${MIGRATION_DIR}/src/config"       # data dir 2.16.4 d'origine (jamais modifie)
 WORK_DIR="${MIGRATION_DIR}/work/config"      # copie de travail (mutee palier par palier)

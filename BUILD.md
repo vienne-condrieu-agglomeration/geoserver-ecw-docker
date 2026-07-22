@@ -87,7 +87,7 @@ docker rmi --force $(docker images -q allfab/geoserver-ecw)
 
 # Migration progressive d'un data dir (2.16 → 3.0)
 
-Voir `migrate.sh` et la section « Migration multi-versions » de `CLAUDE.md`.
+Voir `scripts/tools/migrate.sh` et la section « Migration multi-versions » de `CLAUDE.md`.
 
 ## 1. Variant de base Java 11 (pour les paliers 2.16 → 2.27)
 
@@ -126,9 +126,9 @@ docker build -f ./Dockerfile \
 Placer le data dir 2.16.4 dans `migration/src/config`, puis :
 
 ```bash
-BUILD=1 ./migrate.sh            # construit + joue chaque palier 2.17.5 → 3.0.0
+BUILD=1 ./scripts/tools/migrate.sh            # construit + joue chaque palier 2.17.5 → 3.0.0
 # ou, si les images existent deja :
-./migrate.sh
+./scripts/tools/migrate.sh
 # reprise a un palier precis (1-based) :
-START_STEP=8 ./migrate.sh
+START_STEP=8 ./scripts/tools/migrate.sh
 ```
