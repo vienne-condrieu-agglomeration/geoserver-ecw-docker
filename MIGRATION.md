@@ -310,20 +310,61 @@ nécessaire** : le reverse proxy envoie les `X-Forwarded-*` et l'origine réelle
 correspond au `proxyBaseUrl`, donc la CSP est satisfaite — d'où le rappel de
 restauration ci-dessous.
 
+#### Intégration derrière un reverse-proxy (TLS terminé à l'edge)
+
+En production, l'image ne termine **pas** le TLS elle-même : elle tourne en
+**HTTP simple** (`HTTPS_ENABLED=false`, aucun keystore) derrière un reverse-proxy
+qui assure le chiffrement et les certificats (dans l'infra cible : **Traefik +
+Let's Encrypt** sur la VM `frontend`). Le keystore Jetty de l'image (bloc HTTPS de
+`startup.sh`, auto-génération self-signed incluse) ne sert **qu'aux déploiements
+autonomes** sans proxy.
+
+Deux conséquences côté **data dir / config GeoServer** :
+
+1. **`global.xml`** — pour que GeoServer reconstruise ses URL publiques
+   (`https://<domaine-public>/geoserver/…`) à partir des en-têtes injectés par le
+   proxy, et **non** de l'adresse interne HTTP qu'il voit réellement :
+   ```xml
+   <proxyBaseUrl>https://geoserver.vienne-condrieu-agglomeration.fr/geoserver</proxyBaseUrl>
+   <useHeadersProxyURL>true</useHeadersProxyURL>
+   ```
+   `useHeadersProxyURL=true` fait confiance à `X-Forwarded-Proto/Host/For` (envoyés
+   par défaut par Traefik) ; `proxyBaseUrl` reste renseigné comme **repli canonique**
+   pour les accès non proxifiés (health-check interne, GWC seeding). C'est le pendant
+   prod du réglage local ci-dessus, et ce qui fait passer la CSP `form-action 'self'`
+   (l'`action` du login redevient l'origine publique).
+
+2. **`GEOSERVER_CSRF_WHITELIST`** (variable d'env) — doit lister le **Host public**
+   (`geoserver.vienne-condrieu-agglomeration.fr`), sinon l'admin web renvoie 403
+   derrière un proxy dont le `Host` diffère de l'origine interne.
+
+> La configuration complète du côté infra (route Traefik, résolveur ACME
+> Let's Encrypt, découpage console `/web` sous SSO vs services OWS pour clients
+> machine) est documentée dans le dépôt **`vca-infra-geo`**
+> (`proxmox/vms/geoserver/README.md` et `frontend/traefik/rules/100-services.yml`).
+
 ### Reste à faire pour la mise en production
 
 Ces points ne concernent que le **service en prod**, pas la migration du data dir :
 
-1. Réactiver **HTTPS/keystore** (mode `docker-compose.yml` racine).
+1. **TLS** — dans l'infra cible, le chiffrement est terminé par **Traefik**
+   (Let's Encrypt), pas par Jetty : le conteneur reste en **HTTP simple**
+   (`HTTPS_ENABLED=false`, aucun keystore). Le mode HTTPS/keystore de l'image
+   (`docker-compose.yml` racine) ne sert qu'à un déploiement **autonome** sans
+   reverse-proxy. Cf. *Intégration derrière un reverse-proxy* ci-dessus.
 2. Configurer les **URL Checks** (WMS cascadés) et le **StrictHttpFirewall**
    (ressources aux noms avec espaces).
 3. Se connecter à la console avec `igeo` pour un contrôle visuel final.
-4. **Restaurer le Proxy Base URL** dans `global.xml` s'il a été neutralisé pour la
-   validation locale (cf. *Piège du Proxy Base URL* ci-dessus) :
+4. **Régler le Proxy Base URL** dans `global.xml` (a été neutralisé pour la
+   validation locale — cf. *Piège du Proxy Base URL* ci-dessus). ⚠️ **Le hostname
+   change** : l'ancien data dir pointait sur `geo-ressources.…` (legacy) ; la
+   **nouvelle infra sert tout sous `geoserver.…`** (les liens
+   `geo-ressources.…/geoserver/web` disparaissent). Valeur cible :
    ```xml
-   <proxyBaseUrl>https://geo-ressources.vienne-condrieu-agglomeration.fr/geoserver</proxyBaseUrl>
+   <proxyBaseUrl>https://geoserver.vienne-condrieu-agglomeration.fr/geoserver</proxyBaseUrl>
    <useHeadersProxyURL>true</useHeadersProxyURL>
    ```
+   Aligner `GEOSERVER_CSRF_WHITELIST` sur ce même Host.
 
 ## Points de vigilance par version
 
