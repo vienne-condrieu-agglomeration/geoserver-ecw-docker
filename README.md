@@ -79,6 +79,32 @@ geoserver
 
 ### HTTPS / SSL Keystore
 
+#### Why this exists — where TLS is terminated / _Pourquoi ça existe — où le TLS est terminé_
+
+The image embeds **Jetty**, a Java application server that can terminate TLS itself. The HTTPS mechanism of the image (`startup.sh`, HTTPS block) only applies when **Jetty terminates TLS directly** — i.e. when the container is exposed at the front, **with no reverse proxy in front of it**. When `HTTPS_ENABLED=true`, `startup.sh` enables the Jetty `ssl,https` modules and `envsubst`s the `jetty/start.d/ssl.ini` + `https.ini` templates; Jetty then needs a private key + server certificate, which in Java live in a **keystore** (a password-protected PKCS12/JKS file — `jetty.sslContext.keyStorePath` / `keyStorePassword`).<br />
+_L'image embarque **Jetty**, un serveur d'applications Java capable de terminer le TLS lui-même. La mécanique HTTPS de l'image (`startup.sh`, bloc HTTPS) ne sert qu'au cas où **Jetty termine le TLS directement** — c'est-à-dire quand le conteneur est exposé en frontal, **sans reverse proxy devant**. Quand `HTTPS_ENABLED=true`, `startup.sh` active les modules Jetty `ssl,https` et fait un `envsubst` des templates `jetty/start.d/ssl.ini` + `https.ini` ; Jetty a alors besoin d'une clé privée + d'un certificat serveur, qui en Java vivent dans un **keystore** (fichier PKCS12/JKS protégé par mot de passe — `jetty.sslContext.keyStorePath` / `keyStorePassword`)._
+
+**Two TLS termination models / _Deux modèles de terminaison TLS_ :**
+
+```mermaid
+flowchart LR
+    subgraph A["Model A — Jetty terminates TLS (standalone)"]
+        direction LR
+        browserA["Browser"] -- "HTTPS" --> jettyA["Jetty :8443<br/>+ keystore<br/><i>(to manage / renew)</i>"]
+    end
+
+    subgraph B["Model B — termination at the edge (reverse proxy, e.g. Traefik + Let's Encrypt)"]
+        direction LR
+        browserB["Browser"] -- "HTTPS<br/>(public, encrypted)" --> proxyB["Traefik :443<br/>+ ACME / Let's Encrypt"]
+        proxyB -- "HTTP<br/>(internal network, cleartext)" --> jettyB["Jetty :8080<br/><i>HTTPS_ENABLED=false</i>"]
+    end
+```
+
+> **Friction point / _Point de friction_ :** Model A requires you to provide and renew a valid certificate **inside a Java keystore**, a format Let's Encrypt does not produce natively (LE emits PEM). You would have to convert PEM → PKCS12 on every renewal (~90 days), remount the keystore and restart Jetty — tedious and fragile. **Behind a reverse proxy (Model B), set `HTTPS_ENABLED=false`**: the whole HTTPS block of `startup.sh` is short-circuited, no keystore is mounted or generated, and TLS/certificates are handled by the proxy (which is built for it). The sections below only concern **Model A (standalone)**.<br />
+> _Le modèle A exige de fournir et renouveler un certificat valide **dans un keystore Java**, format que Let's Encrypt ne produit pas nativement (LE sort du PEM). Il faudrait convertir PEM → PKCS12 à chaque renouvellement (~90 jours), remonter le keystore et redémarrer Jetty — fastidieux et fragile. **Derrière un reverse proxy (modèle B), mettez `HTTPS_ENABLED=false`** : tout le bloc HTTPS de `startup.sh` est court-circuité, aucun keystore n'est monté ni généré, et le TLS/les certificats sont gérés par le proxy (fait pour ça). Les sections ci-dessous ne concernent que le **modèle A (autonome)**._
+
+#### Model A — providing the keystore / _Modèle A — fournir le keystore_
+
 When `HTTPS_ENABLED=true`, the container needs a Java keystore for TLS. Two modes are available:<br />
 _Quand `HTTPS_ENABLED=true`, le conteneur a besoin d'un keystore Java pour TLS. Deux modes sont disponibles :_
 
