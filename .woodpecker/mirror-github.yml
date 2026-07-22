@@ -1,0 +1,79 @@
+# Woodpecker CI — Miroir public GitHub (filtré)
+#
+# Pipeline dédié miroir Forgejo -> GitHub pour geoserver-ecw-docker. Déclenché
+# sur tout push `main`, indépendant de .build.yml (n'affecte pas le build/push
+# de l'image Docker).
+#
+# Le trigger n'est volontairement pas filtré par `path:` : tout push sur `main`
+# doit resynchroniser le miroir GitHub, même s'il ne touche aucun fichier
+# spécifique.
+#
+# Le miroir retire CLAUDE.md de TOUT l'historique (voir
+# scripts/mirror-to-github.sh) : le fichier n'apparaît jamais sur GitHub.
+#
+# Secrets requis (à définir dans Woodpecker pour ce dépôt, événement `manual`
+# autorisé sur chacun) :
+#   FORGEJO_MIRROR_READ_TOKEN  token Forgejo (lecture) — clone la source privée
+#                              tant qu'elle n'est pas publique côté Forgejo.
+#   GITHUB_MIRROR_PUSH_TOKEN   fine-grained PAT GitHub (Contents: Read and write),
+#                              scope limité au repo miroir
+#                              vienne-condrieu-agglomeration/geoserver-ecw-docker.
+
+when:
+  - event: push
+    branch: main
+  # Permet un déclenchement manuel depuis l'UI Woodpecker (bouton « Run »).
+  # Seul ce pipeline écoute `manual` : un run manuel ne lance donc que le
+  # miroir, pas le build Docker de .build.yml.
+  - event: manual
+
+steps:
+  mirror:
+    image: python:3.12-slim
+    environment:
+      GITHUB_MIRROR_TOKEN:
+        from_secret: GITHUB_MIRROR_PUSH_TOKEN
+      FORGEJO_TOKEN:
+        from_secret: FORGEJO_MIRROR_READ_TOKEN
+      FORGEJO_USER: allfab
+      SOURCE_REPO_URL: https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker.git
+      TARGET_REPO: vienne-condrieu-agglomeration/geoserver-ecw-docker
+    commands:
+      - apt-get update && apt-get install -y --no-install-recommends git ca-certificates
+      - pip install --quiet git-filter-repo
+      - bash .woodpecker/scripts/mirror-to-github.sh
+
+  NTFY Notification ON SUCCESS:
+    image: codeberg.org/l-x/woodpecker-ntfy
+    settings:
+      url: https://ntfy.allfabox.fr/woodpecker-alerts
+      token:
+        from_secret: VAULT_NTFY_TOKEN
+      title: "✅ MIROIR GITHUB | ${CI_REPO_NAME} | PIPELINE #${CI_PIPELINE_NUMBER}"
+      priority: default
+      click: ${CI_PIPELINE_URL}
+      icon: https://woodpecker-ci.org/img/logo.svg
+      tags: robot,${CI_REPO_NAME}
+      message: |
+        Miroir GitHub synchronisé pour le dépôt ${CI_REPO_NAME}
+        Référence du commit : ${CI_COMMIT_MESSAGE}
+        Réalisé par ${CI_COMMIT_AUTHOR} sur la branche ${CI_COMMIT_BRANCH}
+
+  NTFY Notification ON FAILURE:
+    image: codeberg.org/l-x/woodpecker-ntfy
+    when:
+      status:
+        - failure
+    settings:
+      url: https://ntfy.allfabox.fr/woodpecker-alerts
+      token:
+        from_secret: VAULT_NTFY_TOKEN
+      title: "❌ MIROIR GITHUB | ${CI_REPO_NAME} | PIPELINE #${CI_PIPELINE_NUMBER}"
+      priority: high
+      click: ${CI_PIPELINE_URL}
+      icon: https://woodpecker-ci.org/img/logo.svg
+      tags: robot,${CI_REPO_NAME}
+      message: |
+        Miroir GitHub échoué pour le dépôt ${CI_REPO_NAME}
+        Référence du commit : ${CI_COMMIT_MESSAGE}
+        Réalisé par ${CI_COMMIT_AUTHOR} sur la branche ${CI_COMMIT_BRANCH}
