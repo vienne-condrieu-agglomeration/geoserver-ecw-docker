@@ -43,32 +43,51 @@ _La liste exhaustive des versions mineures utilisées dans l'escalier de migrati
 All these images are built from the **same [`Dockerfile`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)**, only the build-args change (see [runtime profiles](#buildable-geoserver-versions--versions-geoserver-buildables) and [How to build](#how-to-build-)). The `latest` tag now points to **`3.0.0`**.<br />
 _Toutes ces images sont construites depuis le **même [`Dockerfile`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)**, seuls les build-args changent (voir [profils runtime](#buildable-geoserver-versions--versions-geoserver-buildables) et [How to build](#how-to-build-)). Le tag `latest` pointe désormais vers **`3.0.0`**._
 
+The tags below are the **13 pinned versions** produced by [`scripts/tools/build-and-push.sh`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/scripts/tools/build-and-push.sh). Each version ships as `<version>` **and** `<version>-13.6-slim` (Debian derived from the base image); `3.0.0` additionally carries `latest`.<br />
+_Les tags ci-dessous sont les **13 versions épinglées** produites par [`scripts/tools/build-and-push.sh`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/scripts/tools/build-and-push.sh). Chaque version est publiée en `<version>` **et** `<version>-13.6-slim` (Debian déduite de l'image de base) ; la `3.0.0` porte en plus `latest`._
+
 **Profile 3 — Java 21 / Jetty 12.1 / Jakarta EE11**
 
 - `3.0.0`, `3.0.0-13.6-slim`, `latest`
 
 **Profile 2 — Java 21 / Jetty 12.1 / EE8 (javax)**
 
-- `2.28.4`
-- `2.28.2`, `2.28.2-13.4-slim`
+- `2.28.4`, `2.28.4-13.6-slim`
 
 **Profile 1 — Java 11 / Jetty 10 (javax)**
 
-- `2.27.5`, `2.27.2`, `2.27.2-13.1-slim`, `2.27.1`, `2.27.1-12.11-slim`
-- `2.26.4`, `2.25.7`, `2.24.5`, `2.23.6`, `2.22.6`, `2.21.5`
-- `2.20.7`, `2.19.7`, `2.18.7`, `2.17.5`
+- `2.27.5`, `2.27.5-13.6-slim`
+- `2.26.4`, `2.26.4-13.6-slim`
+- `2.25.7`, `2.25.7-13.6-slim`
+- `2.24.5`, `2.24.5-13.6-slim`
+- `2.23.6`, `2.23.6-13.6-slim`
+- `2.22.6`, `2.22.6-13.6-slim`
+- `2.21.5`, `2.21.5-13.6-slim`
+- `2.20.7`, `2.20.7-13.6-slim`
+- `2.19.7`, `2.19.7-13.6-slim`
+- `2.18.7`, `2.18.7-13.6-slim`
+- `2.17.5`, `2.17.5-13.6-slim`
 
-> The `2.x` patch versions above are the ones wired into the migration staircase (`scripts/tools/migrate.sh`). Any other patch of a supported minor line builds by passing its number to `GS_VERSION`.<br />_Les versions patch `2.x` ci-dessus sont celles câblées dans l'escalier de migration (`scripts/tools/migrate.sh`). N'importe quel autre patch d'une ligne mineure supportée se build en passant son numéro à `GS_VERSION`._
+> The `2.x` patch versions above are the ones wired into the migration staircase (`scripts/tools/migrate.sh`) and the `STEPS` matrix of `scripts/tools/build-and-push.sh`. Any other patch of a supported minor line builds by passing its number to `GS_VERSION`. Older Debian-suffixed tags from earlier builds (e.g. `2.28.2-13.4-slim`, `2.27.2-13.1-slim`, `2.27.1-12.11-slim`) may still exist on Docker Hub.<br />_Les versions patch `2.x` ci-dessus sont celles câblées dans l'escalier de migration (`scripts/tools/migrate.sh`) et la matrice `STEPS` de `scripts/tools/build-and-push.sh`. N'importe quel autre patch d'une ligne mineure supportée se build en passant son numéro à `GS_VERSION`. D'anciens tags à suffixe Debian issus de builds antérieurs (ex. `2.28.2-13.4-slim`, `2.27.2-13.1-slim`, `2.27.1-12.11-slim`) peuvent subsister sur Docker Hub._
 
 ---
 
-| Tag                                    | Description                                                                                  |
-| -------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `latest`                               | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)           |
-| `3.0.0`, `3.0.0-13.6-slim`, `latest`   | [Geoserver 3.0.0 Release Notes](https://github.com/geoserver/geoserver/releases/tag/3.0.0)   |
-| `2.28.2`, `2.28.2-13.4-slim`           | [Geoserver 2.28.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.28.2) |
-| `2.27.2`, `2.27.2-13.1-slim`           | [Geoserver 2.27.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.2) |
-| `2.27.1`, `2.27.1-12.11-slim`          | [Geoserver 2.27.1 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.1) |
+| Tag                                  | Description                                                                                    |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `latest`                             | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)             |
+| `3.0.0`, `3.0.0-13.6-slim`, `latest` | [Geoserver 3.0.0 Release Notes](https://github.com/geoserver/geoserver/releases/tag/3.0.0)     |
+| `2.28.4`, `2.28.4-13.6-slim`         | [Geoserver 2.28.4 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.28.4)   |
+| `2.27.5`, `2.27.5-13.6-slim`         | [Geoserver 2.27.5 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.5)   |
+| `2.26.4`, `2.26.4-13.6-slim`         | [Geoserver 2.26.4 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.26.4)   |
+| `2.25.7`, `2.25.7-13.6-slim`         | [Geoserver 2.25.7 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.25.7)   |
+| `2.24.5`, `2.24.5-13.6-slim`         | [Geoserver 2.24.5 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.24.5)   |
+| `2.23.6`, `2.23.6-13.6-slim`         | [Geoserver 2.23.6 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.23.6)   |
+| `2.22.6`, `2.22.6-13.6-slim`         | [Geoserver 2.22.6 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.22.6)   |
+| `2.21.5`, `2.21.5-13.6-slim`         | [Geoserver 2.21.5 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.21.5)   |
+| `2.20.7`, `2.20.7-13.6-slim`         | [Geoserver 2.20.7 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.20.7)   |
+| `2.19.7`, `2.19.7-13.6-slim`         | [Geoserver 2.19.7 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.19.7)   |
+| `2.18.7`, `2.18.7-13.6-slim`         | [Geoserver 2.18.7 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.18.7)   |
+| `2.17.5`, `2.17.5-13.6-slim`         | [Geoserver 2.17.5 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.17.5)   |
 
 ## What is Geoserver ?
 
@@ -77,40 +96,57 @@ _Toutes ces images sont construites depuis le **même [`Dockerfile`](https://for
 Pick the build-args matching the [runtime profile](#buildable-geoserver-versions--versions-geoserver-buildables) of the target GeoServer version.<br />
 _Choisissez les build-args correspondant au [profil runtime](#buildable-geoserver-versions--versions-geoserver-buildables) de la version GeoServer visée._
 
-### Profile 3 — `3.0.0` (default `latest`, Java 21 / Jetty 12.1 / Jakarta EE11)
+### Automated — build (and push) the whole range / _Automatisé — build (et push) de toute la gamme_
 
-The `Dockerfile` build-args already default to this profile, so no `--build-arg` beyond `BUILD_DATE` is needed.<br />
-_Les build-args du `Dockerfile` pointent déjà par défaut sur ce profil, aucun `--build-arg` au-delà de `BUILD_DATE` n'est nécessaire._
-
-```bash
-docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:3.0.0 -t allfab/geoserver-ecw:3.0.0-13.6-slim .
-```
-
-### Profile 2 — `2.28.2` (Java 21 / Jetty 12.1 / EE8)
+[`scripts/tools/build-and-push.sh`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/scripts/tools/build-and-push.sh) builds — and optionally pushes to Docker Hub — the **13 pinned versions** from a single `STEPS` matrix (same source of truth as the migration staircase). The `-<debian>-slim` suffix is derived automatically from `/etc/debian_version` of each base image. See [`scripts/tools/README.md`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/scripts/tools/README.md).<br />
+_[`scripts/tools/build-and-push.sh`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/scripts/tools/build-and-push.sh) construit — et pousse en option vers Docker Hub — les **13 versions épinglées** depuis une même matrice `STEPS` (même source de vérité que l'escalier de migration). Le suffixe `-<debian>-slim` est déduit automatiquement du `/etc/debian_version` de chaque image de base. Voir [`scripts/tools/README.md`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/scripts/tools/README.md)._
 
 ```bash
-docker build -f ./Dockerfile --no-cache=true \
-  --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-  --build-arg BASE_IMAGE=allfab/gdal-ecw:latest \
-  --build-arg GS_VERSION=2.28.2 \
-  --build-arg JETTY_VERSION=12.1.7 \
-  --build-arg SERVLET_PROFILE=jetty12-ee8 \
-  -t allfab/geoserver-ecw:2.28.2 -t allfab/geoserver-ecw:2.28.2-13.4-slim .
+# Build local des 13 images, sans push (dry run)
+PUSH=0 ./scripts/tools/build-and-push.sh
+
+# Build + push des 13 images (docker login préalable, cf. scripts/tools/README.md)
+docker login docker.io -u allfab
+./scripts/tools/build-and-push.sh
 ```
 
-### Profile 1 — `2.17` → `2.27` (Java 11 / Jetty 10)
+### Manual per-version commands / _Commandes manuelles par version_
+
+The 13 `docker build` commands below are exactly what the script runs per step. Both base images (`:java11` and `:latest`) currently report Debian `13.6`, hence the `-13.6-slim` suffix throughout — adjust it if you rebuild on a base with a different Debian version.<br />
+_Les 13 commandes `docker build` ci-dessous sont exactement ce que le script exécute par palier. Les deux images de base (`:java11` et `:latest`) rapportent actuellement Debian `13.6`, d'où le suffixe `-13.6-slim` partout — à ajuster si vous rebuildez sur une base à version Debian différente._
+
+#### Profile 1 — `2.17` → `2.27` (Java 11 / Jetty `10.0.24` / `jetty10-javax`)
 
 Requires the Java 11 base variant `allfab/gdal-ecw:java11` (built from the `gdal-ecw-docker` repo with `--build-arg JAVA_VERSION=11`).<br />
 _Nécessite le variant base Java 11 `allfab/gdal-ecw:java11` (construit depuis le dépôt `gdal-ecw-docker` avec `--build-arg JAVA_VERSION=11`)._
 
 ```bash
-docker build -f ./Dockerfile --no-cache=true \
-  --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-  --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 \
-  --build-arg GS_VERSION=2.27.2 \
-  --build-arg JETTY_VERSION=10.0.24 \
-  --build-arg SERVLET_PROFILE=jetty10-javax \
-  -t allfab/geoserver-ecw:2.27.2 -t allfab/geoserver-ecw:2.27.2-13.1-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.17.5 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.17.5 -t allfab/geoserver-ecw:2.17.5-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.18.7 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.18.7 -t allfab/geoserver-ecw:2.18.7-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.19.7 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.19.7 -t allfab/geoserver-ecw:2.19.7-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.20.7 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.20.7 -t allfab/geoserver-ecw:2.20.7-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.21.5 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.21.5 -t allfab/geoserver-ecw:2.21.5-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.22.6 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.22.6 -t allfab/geoserver-ecw:2.22.6-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.23.6 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.23.6 -t allfab/geoserver-ecw:2.23.6-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.24.5 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.24.5 -t allfab/geoserver-ecw:2.24.5-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.25.7 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.25.7 -t allfab/geoserver-ecw:2.25.7-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.26.4 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.26.4 -t allfab/geoserver-ecw:2.26.4-13.6-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:java11 --build-arg GS_VERSION=2.27.5 --build-arg JETTY_VERSION=10.0.24 --build-arg SERVLET_PROFILE=jetty10-javax -t allfab/geoserver-ecw:2.27.5 -t allfab/geoserver-ecw:2.27.5-13.6-slim .
+```
+
+#### Profile 2 — `2.28` (Java 21 / Jetty `12.1.7` / `jetty12-ee8`)
+
+```bash
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:latest --build-arg GS_VERSION=2.28.4 --build-arg JETTY_VERSION=12.1.7 --build-arg SERVLET_PROFILE=jetty12-ee8 -t allfab/geoserver-ecw:2.28.4 -t allfab/geoserver-ecw:2.28.4-13.6-slim .
+```
+
+#### Profile 3 — `3.0.0` (default `latest`, Java 21 / Jetty `12.1.7` / `jetty12-ee11`)
+
+The `Dockerfile` build-args already default to this profile; only `3.0.0` also gets the `latest` tag.<br />
+_Les build-args du `Dockerfile` pointent déjà par défaut sur ce profil ; seule la `3.0.0` reçoit aussi le tag `latest`._
+
+```bash
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg BASE_IMAGE=allfab/gdal-ecw:latest --build-arg GS_VERSION=3.0.0 --build-arg JETTY_VERSION=12.1.7 --build-arg SERVLET_PROFILE=jetty12-ee11 -t allfab/geoserver-ecw:3.0.0 -t allfab/geoserver-ecw:3.0.0-13.6-slim -t allfab/geoserver-ecw:latest .
 ```
 
 ## How to quickstart ?
