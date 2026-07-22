@@ -110,6 +110,13 @@ en fin de vie + tous les suffixes de libs `t64` de Trixie à réécrire).
   (sinon `update-credentials.sh` réécrit `users.xml` et écrase le compte).
 - **Aucune extension** installée → `STABLE_EXTENSIONS` vide ; rien à réinstaller
   (WorldImage/ArcGRID) en 3.0. Le raster ECW passe par GDAL, pas par une extension.
+- **Chemins des coverageStores en ABSOLU de prod** : chaque `coveragestore.xml`
+  référence `file:///opt/data/geoserver/data-src/raster/…` (et **non** la
+  convention `/app/geoserver/data/raster` du `docker-compose.yml` racine). Pour la
+  validation du rendu, on monte donc les données à **ce chemin absolu exact**
+  plutôt que de réécrire ~130 `coveragestore.xml`. Stores raster : **12 ECW**
+  (orthos `ortho/scot_*` de 2,6 à 6,3 Go), **~180 JP2ECW** (surtout `urbanisme/`),
+  le reste en GeoTIFF / ImageMosaic.
 - **3 stores WMS cascadés** + des noms de ressources avec espaces (`CRAIG - IGN - WMS`…).
   Les ruptures runtime associées (**URL Checks** en 2.24, **StrictHttpFirewall** en
   2.25) **n'empêchent pas le boot** ; elles ne concernent que le service en
@@ -129,11 +136,19 @@ mkdir -p /home/allfab/downloads/geoserver-2.16.4 \
 
 # Copie source dans le projet (racine du data dir = migration/src/config)
 cp -a /home/allfab/downloads/geoserver-2.16.4/data-config \
-      ./migration/src/config
+      ./migration/src
+
+# On renomme le dossier
+mv ./migration/src/data-config ./migration/src/config
 
 # Permissions user jetty (UID/GID 1000)
 sudo chown -R 1000:1000 ./migration/src/config
 ```
+
+> Le staircase ne migre que le **data dir** (config). Les **données raster**
+> elles-mêmes (ECW, JP2ECW, GeoTIFF…) ne sont **pas** nécessaires pour le boot ;
+> elles ne servent qu'à la validation finale du rendu (voir plus bas) et sont
+> rapatriées séparément depuis `…:/opt/data/geoserver/data-src` (≈ 41 Go).
 
 ### 1. Construire le variant de base Java 11
 
@@ -185,20 +200,90 @@ docker compose -f docker-compose.migration.yml down
 ```
 migration/
 ├── src/config/        # data dir 2.16.4 d'origine (jamais modifie)
-├── work/config/       # copie de travail, mutee palier par palier
+├── src/data/          # donnees raster de prod rapatriees (ECW/JP2ECW/TIFF, ~41 Go, RO a la validation)
+├── work/config/       # copie de travail, mutee palier par palier (= data dir migre final)
+├── work/logs/         # logs GeoServer du conteneur de validation 3.0.0
+├── work/gwc/          # config + cache GeoWebCache de la validation
+├── out/               # PNG des GetMap de validation (ECW, JP2ECW)
 ├── steps/<nn>-<gs>/   # snapshot de l'etat d'ENTREE de chaque palier
-└── logs/<nn>-<gs>.log # logs docker par palier
+├── logs/<nn>-<gs>.log # logs docker par palier
+└── docker-compose-3.0.0.yml   # compose de validation bout-en-bout (rendu ECW)
 ```
 
-## Vérification finale (après 3.0.0)
+## Validation finale de bout en bout (faite le 2026-07-22)
 
-1. Démarrer l'**image ECW complète 3.0.0** sur le data dir migré, en mode normal
-   (HTTPS activé) ; se connecter à la console web avec le compte `igeo`.
-2. Vérifier que **workspaces / stores / couches / styles** sont présents.
-3. **Rendu ECW natif** : un `GetMap` WMS sur une couche raster ECW doit produire
-   une image (valide GDAL/Hexagon sur le runtime final).
-4. Réactiver/configurer ce qui ne concerne que la prod : **URL Checks** (WMS
-   cascadés), **StrictHttpFirewall** (noms avec espaces), HTTPS/keystore.
+La validation du staircase (13/13 paliers, 0 ERROR) ne portait que sur le **boot**.
+Cette étape confirme le **rendu ECW natif réel** sur l'image finale, avec les
+vraies données de prod.
+
+### Compose de validation dédié
+
+`migration/docker-compose-3.0.0.yml` monte le data dir migré + les rasters (en
+lecture seule) au chemin absolu attendu par les stores, **sans** identifiants
+admin (le compte `igeo` du data dir est préservé) :
+
+```yaml
+services:
+  geoserver-migration:
+    image: allfab/geoserver-ecw:3.0.0
+    ports: ["8080:8080"]
+    volumes:
+      - ./work/config:/app/geoserver/config              # data dir migré → GEOSERVER_DATA_DIR
+      - ./src/data:/opt/data/geoserver/data-src:ro        # rasters au chemin ABSOLU de prod (RO)
+      - ./work/logs:/app/geoserver/logs
+      - ./work/gwc/config:/app/geoserver/gwc/config
+      - ./work/gwc/cache:/app/geoserver/gwc/cache
+    environment:
+      - HTTPS_ENABLED=false
+      - INSTALL_EXTENSIONS=false
+      - GEOSERVER_CSRF_DISABLED=true
+      # PAS de GEOSERVER_ADMIN_USER / GEOSERVER_ADMIN_PASSWORD (admin réel = igeo)
+```
+
+```bash
+cd migration
+docker compose -f docker-compose-3.0.0.yml up -d
+docker compose -f docker-compose-3.0.0.yml logs -f
+```
+
+> Les répertoires d'écriture (`work/logs`, `work/gwc/{config,cache}`) doivent
+> exister et appartenir à **1000:1000** avant le lancement.
+
+### Résultats obtenus
+
+| Contrôle | Résultat |
+|---|---|
+| Boot | **EE11** (`oeje11w`) / Jetty **12.1.7** / JVM **21**, **GDAL 3.13.1 natif chargé** |
+| WMS `GetCapabilities` | **155 couches / 15 workspaces** annoncées |
+| **GetMap ECW** — `ortho:vca_scot_ortho_2023` (5,8 Go) | PNG 800×482 RGB, écart-type ≈ 64/canal → **rendu Hexagon réel**, pas de tuile vide ✅ |
+| **GetMap JP2ECW** — `urbanisme-pprni:38107_PLU_PPRNI_ALEAS_20190515` | PNG 700×495 RGB, 37 909 couleurs distinctes ✅ |
+| Console web (`/geoserver/web/`) | 302 CryptoMapper Wicket → page login **200** (formulaire username/password) ✅ |
+| REST (`/rest/workspaces`) | **401** — sécurité active, admin `igeo` préservé ✅ |
+| Logs | **0 erreur** ECW / GDAL / Hexagon |
+
+Exemple de requête GetMap ECW validée (WMS 1.1.1, EPSG:2154, bbox native) :
+
+```
+http://localhost:8080/geoserver/ortho/wms?service=WMS&version=1.1.1&request=GetMap
+  &layers=ortho:vca_scot_ortho_2023&styles=&srs=EPSG:2154
+  &bbox=828188.37844,6482573.63106,863634.72844,6503932.43106
+  &width=800&height=482&format=image/png
+```
+
+Les PNG produits sont archivés dans `migration/out/`.
+
+> **Note** : le contrôle REST authentifié (énumération `igeo`) n'a pas été joué
+> faute de mot de passe sous la main ; la présence des workspaces/couches a été
+> vérifiée via WMS `GetCapabilities`, qui couvre le besoin.
+
+### Reste à faire pour la mise en production
+
+Ces points ne concernent que le **service en prod**, pas la migration du data dir :
+
+1. Réactiver **HTTPS/keystore** (mode `docker-compose.yml` racine).
+2. Configurer les **URL Checks** (WMS cascadés) et le **StrictHttpFirewall**
+   (ressources aux noms avec espaces).
+3. Se connecter à la console avec `igeo` pour un contrôle visuel final.
 
 ## Points de vigilance par version
 
