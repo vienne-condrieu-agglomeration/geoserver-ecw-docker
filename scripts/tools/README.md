@@ -63,20 +63,42 @@ Opération **ponctuelle** : build + push vers Docker Hub de **chaque** image de 
 - `allfab/geoserver-ecw:<version>-<debian>-slim` — ex. `2.28.4-13.6-slim`, la version Debian étant **lue dans `/etc/debian_version` de l'image de base** (elle dépend du `BASE_IMAGE`, pas de la version GeoServer). Omis proprement si la base ne renvoie pas un `NN.N` numérique.
 - `allfab/geoserver-ecw:latest` — **uniquement** pour la version de référence (`LATEST_VERSION`, `3.0.0`).
 
+### Authentification Docker Hub (à faire avant le push)
+
+**Méthode recommandée — `docker login` interactif, puis le script sans mot de passe.**
+Le login se fait à part, avec saisie masquée ; le script tourne ensuite en mode « déjà loggué » (il ne réclame `DOCKER_USER`/`DOCKER_PASS` que s'ils sont fournis).
+
+```bash
+docker login docker.io -u allfab      # mot de passe demandé en saisie cachée
+./scripts/tools/build-and-push.sh     # PUSH réel, sans DOCKER_PASS
+```
+
+> ⚠️ **Ne jamais** passer le mot de passe en clair sur la ligne de commande
+> (`DOCKER_PASS=... ./build-and-push.sh`). Deux raisons :
+> - **Il fuite** dans l'historique shell et la liste des processus.
+> - **Il casse le parsing** dès qu'il contient un caractère spécial (`'`, `"`, `` ` ``, `$`, `!`, `(`…). Symptôme typique : la commande « ne fait rien » et le shell affiche un `>` — c'est le prompt de continuation (PS2), il attend la fermeture d'un quote. Sortie : `Ctrl-C`, puis utiliser le `docker login` interactif ci-dessus.
+>
+> Si tu tiens à une variable, lis-la en saisie masquée et brute (les caractères spéciaux passent alors littéralement) :
+> ```bash
+> read -rs DOCKER_PASS && export DOCKER_USER=allfab DOCKER_PASS
+> ./scripts/tools/build-and-push.sh
+> ```
+> `read -r` empêche l'interprétation des `\`, `-s` masque la saisie.
+
 ### Lancement
 
 ```bash
-# Backfill complet des 13 versions (login non-interactif via variables)
-DOCKER_USER=allfab DOCKER_PASS=****** ./scripts/tools/build-and-push.sh
+# Backfill complet des 13 versions (après un docker login préalable)
+./scripts/tools/build-and-push.sh
 
 # Reprise après échec au palier 8
 START_STEP=8 ./scripts/tools/build-and-push.sh
 
-# Répétition à blanc : build local sans push
+# Répétition à blanc : build local sans push (aucun login requis)
 PUSH=0 ./scripts/tools/build-and-push.sh
 
 # Disque serré : purge chaque image locale après son push
-PRUNE=1 DOCKER_USER=allfab DOCKER_PASS=****** ./scripts/tools/build-and-push.sh
+PRUNE=1 ./scripts/tools/build-and-push.sh
 ```
 
 > Opération longue (jusqu'à 13 builds `--no-cache`, chacun télécharge WAR + plugin GDAL + Jetty) : la lancer en `tmux` / arrière-plan.
@@ -90,7 +112,7 @@ PRUNE=1 DOCKER_USER=allfab DOCKER_PASS=****** ./scripts/tools/build-and-push.sh
 | `PUSH` | `1` | `0` = build seul, aucun push (dry run local) |
 | `PRUNE` | `0` | `1` = `docker rmi` l'image après son push |
 | `LATEST_VERSION` | `3.0.0` | version portant aussi le tag `:latest` |
-| `DOCKER_USER` / `DOCKER_PASS` | — | login Docker Hub non-interactif (sinon on suppose déjà loggué) |
+| `DOCKER_USER` / `DOCKER_PASS` | — | login Docker Hub non-interactif (sinon on suppose déjà loggué). ⚠️ Préférer `docker login` interactif — cf. section Authentification |
 | `IMAGE_PREFIX` | `allfab/geoserver-ecw` | préfixe des images |
 | `JAVA11_BASE` / `JAVA21_BASE` | `…:java11` / `…:latest` | images de base par tier |
 | `JETTY10` / `JETTY12` | `10.0.24` / `12.1.7` | versions Jetty par tier |
