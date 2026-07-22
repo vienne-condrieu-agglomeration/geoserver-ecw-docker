@@ -15,7 +15,7 @@ Image built by default (`latest`) :
 - OpenJDK `21`
 - Jetty `12.1.7`
 - GDAL `3.13.1`
-- Geoserver `2.28.2` :
+- Geoserver `3.0.0` :
   - Native Java advanced imaging (JAI) is installed
   - JAI-EXT⁠ is enabled by default
   - ERDAS ECW and JP2ECW (JPG2000) renderer
@@ -30,8 +30,8 @@ _Le **même `Dockerfile`** construit toute la gamme GeoServer de `2.17` à `3.0.
 | Profile | GeoServer | `BASE_IMAGE` | Java | `JETTY_VERSION` | `SERVLET_PROFILE` |
 |---|---|---|---|---|---|
 | 1 | `2.17` → `2.27` | `allfab/gdal-ecw:java11` | 11 | `10.0.x` | `jetty10-javax` |
-| 2 | `2.28` (**`latest`**) | `allfab/gdal-ecw:latest` | 21 | `12.1.x` | `jetty12-ee8` |
-| 3 | `3.0.0` | `allfab/gdal-ecw:latest` | 21 | `12.1.x` | `jetty12-ee11` |
+| 2 | `2.28` | `allfab/gdal-ecw:latest` | 21 | `12.1.x` | `jetty12-ee8` |
+| 3 | `3.0.0` (**`latest`**) | `allfab/gdal-ecw:latest` | 21 | `12.1.x` | `jetty12-ee11` |
 
 > Profile 3 : GeoServer 3.0 = Jakarta Servlet 6.1 = Jakarta EE 11 → Jetty `ee11-*` modules (hence the Jetty **12.1** requirement). Fallback to `jetty12-ee10` if the WAR turns out to be Servlet 6.0.<br />_Profil 3 : GeoServer 3.0 = Jakarta Servlet 6.1 = Jakarta EE 11 → modules Jetty `ee11-*` (d'où l'exigence de Jetty **12.1**). Repli sur `jetty12-ee10` si le WAR s'avère en Servlet 6.0._
 
@@ -40,18 +40,33 @@ _La liste exhaustive des versions mineures utilisées dans l'escalier de migrati
 
 ## Supported tags and respective `Dockerfile` links
 
-- [`3.0.0`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 3 — Jetty 12.1 / EE11)
-- [`2.28.2` - `2.28.2-13.4-slim` - `latest`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 2 — default build)
-- [`2.27.2` - `2.27.2-13.1-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 1 — Jetty 10 / Java 11)
-- [`2.27.1` - `2.27.1-12.11-slim`⁠](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile) (profile 1 — Jetty 10 / Java 11)
+All these images are built from the **same [`Dockerfile`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)**, only the build-args change (see [runtime profiles](#buildable-geoserver-versions--versions-geoserver-buildables) and [How to build](#how-to-build-)). The `latest` tag now points to **`3.0.0`**.<br />
+_Toutes ces images sont construites depuis le **même [`Dockerfile`](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/src/branch/main/Dockerfile)**, seuls les build-args changent (voir [profils runtime](#buildable-geoserver-versions--versions-geoserver-buildables) et [How to build](#how-to-build-)). Le tag `latest` pointe désormais vers **`3.0.0`**._
+
+**Profile 3 — Java 21 / Jetty 12.1 / Jakarta EE11**
+
+- `3.0.0`, `3.0.0-13.6-slim`, `latest`
+
+**Profile 2 — Java 21 / Jetty 12.1 / EE8 (javax)**
+
+- `2.28.4`
+- `2.28.2`, `2.28.2-13.4-slim`
+
+**Profile 1 — Java 11 / Jetty 10 (javax)**
+
+- `2.27.5`, `2.27.2`, `2.27.2-13.1-slim`, `2.27.1`, `2.27.1-12.11-slim`
+- `2.26.4`, `2.25.7`, `2.24.5`, `2.23.6`, `2.22.6`, `2.21.5`
+- `2.20.7`, `2.19.7`, `2.18.7`, `2.17.5`
+
+> The `2.x` patch versions above are the ones wired into the migration staircase (`migrate.sh`). Any other patch of a supported minor line builds by passing its number to `GS_VERSION`.<br />_Les versions patch `2.x` ci-dessus sont celles câblées dans l'escalier de migration (`migrate.sh`). N'importe quel autre patch d'une ligne mineure supportée se build en passant son numéro à `GS_VERSION`._
 
 ---
 
 | Tag                                    | Description                                                                                  |
 | -------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `latest`                               | [Latest release version](https://forgejo.allfabox.fr/allfab/geoserver-ecw-docker/)           |
-| `3.0.0`                                | [Geoserver 3.0.0 Release Notes](https://github.com/geoserver/geoserver/releases/tag/3.0.0)   |
-| `2.28.2`, `2.28.2-13.4-slim`, `latest` | [Geoserver 2.28.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.28.2) |
+| `3.0.0`, `3.0.0-13.6-slim`, `latest`   | [Geoserver 3.0.0 Release Notes](https://github.com/geoserver/geoserver/releases/tag/3.0.0)   |
+| `2.28.2`, `2.28.2-13.4-slim`           | [Geoserver 2.28.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.28.2) |
 | `2.27.2`, `2.27.2-13.1-slim`           | [Geoserver 2.27.2 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.2) |
 | `2.27.1`, `2.27.1-12.11-slim`          | [Geoserver 2.27.1 Release Notes](https://github.com/geoserver/geoserver/releases/tag/2.27.1) |
 
@@ -62,22 +77,25 @@ _La liste exhaustive des versions mineures utilisées dans l'escalier de migrati
 Pick the build-args matching the [runtime profile](#buildable-geoserver-versions--versions-geoserver-buildables) of the target GeoServer version.<br />
 _Choisissez les build-args correspondant au [profil runtime](#buildable-geoserver-versions--versions-geoserver-buildables) de la version GeoServer visée._
 
-### Profile 2 — `2.28.2` (default `latest`)
+### Profile 3 — `3.0.0` (default `latest`, Java 21 / Jetty 12.1 / Jakarta EE11)
+
+The `Dockerfile` build-args already default to this profile, so no `--build-arg` beyond `BUILD_DATE` is needed.<br />
+_Les build-args du `Dockerfile` pointent déjà par défaut sur ce profil, aucun `--build-arg` au-delà de `BUILD_DATE` n'est nécessaire._
 
 ```bash
-docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:2.28.2 -t allfab/geoserver-ecw:2.28.2-13.4-slim .
+docker build -f ./Dockerfile --no-cache=true --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') -t allfab/geoserver-ecw:latest -t allfab/geoserver-ecw:3.0.0 -t allfab/geoserver-ecw:3.0.0-13.6-slim .
 ```
 
-### Profile 3 — `3.0.0` (Java 21 / Jetty 12.1 / Jakarta EE11)
+### Profile 2 — `2.28.2` (Java 21 / Jetty 12.1 / EE8)
 
 ```bash
 docker build -f ./Dockerfile --no-cache=true \
   --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
   --build-arg BASE_IMAGE=allfab/gdal-ecw:latest \
-  --build-arg GS_VERSION=3.0.0 \
+  --build-arg GS_VERSION=2.28.2 \
   --build-arg JETTY_VERSION=12.1.7 \
-  --build-arg SERVLET_PROFILE=jetty12-ee11 \
-  -t allfab/geoserver-ecw:3.0.0 .
+  --build-arg SERVLET_PROFILE=jetty12-ee8 \
+  -t allfab/geoserver-ecw:2.28.2 -t allfab/geoserver-ecw:2.28.2-13.4-slim .
 ```
 
 ### Profile 1 — `2.17` → `2.27` (Java 11 / Jetty 10)

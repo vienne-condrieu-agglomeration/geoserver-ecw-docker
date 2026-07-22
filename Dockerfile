@@ -5,7 +5,7 @@ FROM $BASE_IMAGE AS runtime
 # BUILD ARGUMENTS
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG BUILD_DATE
-ARG GS_VERSION=2.28.2
+ARG GS_VERSION=3.0.0
 ARG JAI_VERSION=1.1.28
 ARG COMMUNITY_PLUGIN_URL=''
 ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoServer/${GS_VERSION}/extensions
@@ -13,7 +13,7 @@ ARG STABLE_PLUGIN_URL=https://downloads.sourceforge.net/project/geoserver/GeoSer
 #  - JETTY_VERSION    : 10.0.x for the Java 11 tier (GeoServer 2.16->2.27), 12.1.x for Java 21 (2.28, 3.0)
 #  - SERVLET_PROFILE  : jetty10-javax | jetty12-ee8 (GeoServer 2.x) | jetty12-ee10 (GeoServer 3.x, Jakarta)
 ARG JETTY_VERSION=12.1.7
-ARG SERVLET_PROFILE=jetty12-ee8
+ARG SERVLET_PROFILE=jetty12-ee11
 
 LABEL \
   maintainer="Allfab <allfab@gmail.com>" \
